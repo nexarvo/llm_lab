@@ -4,6 +4,7 @@ from .openai_provider import OpenAIProvider
 from .anthropic_provider import AnthropicProvider
 from .ollama_provider import OllamaProvider
 from .llama_cpp_provider import LlamaCppProvider
+from .openrouter_provider import OpenRouterProvider
 
 class LLMProviderFactory:
     """Factory class for creating LLM providers"""
@@ -13,6 +14,7 @@ class LLMProviderFactory:
         "anthropic": AnthropicProvider,
         "ollama": OllamaProvider,
         "llama_cpp": LlamaCppProvider,
+        "openrouter": OpenRouterProvider,
     }
     
     @classmethod

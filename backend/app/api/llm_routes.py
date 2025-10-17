@@ -72,5 +72,12 @@ async def get_supported_providers():
                 "provider": "google",
             },
             
+            # OpenRouter Models
+            {
+                "id": "openai/gpt-oss-20b:free",
+                "name": "GPT-OSS (via OpenRouter)",
+                "provider": "openrouter",
+                "description": "OpenAI GPT-OSS through OpenRouter",
+            },
         ] + ollama_models[:2],
     }
