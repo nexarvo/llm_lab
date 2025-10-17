@@ -6,3 +6,4 @@ sqlmodel
 alembic
 python-dotenv
 numpy
+requests
