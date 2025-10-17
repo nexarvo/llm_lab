@@ -17,6 +17,7 @@ class LLMRequest(BaseModel):
     top_ps: List[float] = Field(..., description="List of top-p sampling parameters (0.0 to 1.0)")
     single_llm: bool = Field(..., description="Whether to use single LLM with parameter variations or multiple LLMs")
     models: List[str] = Field(..., min_items=1, max_items=10, description="List of model IDs from /llm/providers")
+    mock_mode: bool = Field(default=False, description="Use mock LLM responses for testing (only works with single_llm=True)")
     
     @validator('temperatures')
     def validate_temperatures(cls, v):
@@ -34,6 +35,12 @@ class LLMRequest(BaseModel):
         for top_p in v:
             if top_p < 0.0 or top_p > 1.0:
                 raise ValueError(f"Top-p {top_p} must be between 0.0 and 1.0")
+        return v
+    
+    @validator('mock_mode')
+    def validate_mock_mode(cls, v, values):
+        if v and not values.get('single_llm', False):
+            raise ValueError("Mock mode can only be used with single_llm=True")
         return v
 
 class LLMResponse(BaseModel):

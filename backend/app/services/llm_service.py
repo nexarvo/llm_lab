@@ -104,7 +104,14 @@ class LLMService:
         try:
             # there will be only one model in the request
             model_id = request.models[0]
-            provider_type = Config.get_provider_for_model(model_id)
+            
+            # Check if mock mode is enabled by user
+            if request.mock_mode:
+                logger.info("Using mock LLM provider for testing (user requested)")
+                provider_type = "mock"
+                model_id = "mock-model"
+            else:
+                provider_type = Config.get_provider_for_model(model_id)
             
             # Calculate parameter variations
             parameter_combinations = generate_parameter_combinations(

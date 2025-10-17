@@ -79,5 +79,13 @@ async def get_supported_providers():
                 "provider": "openrouter",
                 "description": "OpenAI GPT-OSS through OpenRouter",
             },
+            
+            # Mock Models (for testing)
+            {
+                "id": "mock-model",
+                "name": "Mock LLM (Testing)",
+                "provider": "mock",
+                "description": "Mock LLM for testing parameter variations without API calls",
+            },
         ] + ollama_models[:2],
     }

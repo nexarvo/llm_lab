@@ -5,6 +5,7 @@ from .anthropic_provider import AnthropicProvider
 from .ollama_provider import OllamaProvider
 from .llama_cpp_provider import LlamaCppProvider
 from .openrouter_provider import OpenRouterProvider
+from .mock_provider import MockProvider
 
 class LLMProviderFactory:
     """Factory class for creating LLM providers"""
@@ -15,6 +16,7 @@ class LLMProviderFactory:
         "ollama": OllamaProvider,
         "llama_cpp": LlamaCppProvider,
         "openrouter": OpenRouterProvider,
+        "mock": MockProvider,
     }
     
     @classmethod

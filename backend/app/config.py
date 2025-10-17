@@ -43,6 +43,9 @@ class Config:
         
         # OpenRouter Models
         "openai/gpt-oss-20b:free": "openrouter",
+        
+        # Mock Models (for testing)
+        "mock-model": "mock",
     }
     
     @classmethod
