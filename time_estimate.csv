@@ -1,8 +1,8 @@
 Story,Task,Estimate min (hr),Estimate max (hr),Actual,Comment
-Planning,"Understand requirements, list features",1,1,,
+Planning,"Understand requirements, list features",1,1,1,
 ,define architecture,1,2,,
 ,think about UI/UX,1,2,,
-Backend Setup,Initiallize repo and project structure,1,1,,
+Backend Setup,Initiallize repo and project structure,1,1,1,
 Feat: Prompt input and parameter controls,Build prompt input text area,1,2,,
 ,"Add parameter inputs (temperature, top_p, coherence ranges)",1,1,,
 ,Add model selection dropdown (single or multiple models),1,1,,
