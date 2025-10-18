@@ -87,7 +87,15 @@ function useAutoResizeTextarea({
   return { textareaRef, adjustHeight };
 }
 
-export function ChatBox() {
+export function ChatBox({ onFirstSend }: { onFirstSend?: () => void }) {
+  const [input, setInput] = useState("");
+
+  const handleSend = () => {
+    if (onFirstSend) onFirstSend();
+    console.log("Message sent:", input);
+    setInput("");
+  };
+
   const [value, setValue] = useState("");
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: 60,
@@ -195,10 +203,12 @@ export function ChatBox() {
   const shouldStackChips = normalizedSelectedModels.length > 3;
 
   return (
-    <div className="flex flex-col items-center w-full max-w-4xl mx-auto p-4 space-y-8">
-      <h1 className="text-4xl font-bold text-black dark:text-white">
-        What do you want to compare today?
-      </h1>
+    <div className="flex flex-col items-center w-full max-w-4xl mx-auto px-4">
+      {onFirstSend ? (
+        <h1 className="text-4xl font-bold text-black dark:text-white">
+          What do you want to compare today?
+        </h1>
+      ) : null}
 
       <div className="w-full">
         <div className="relative bg-white rounded-xl border border-neutral-300">
@@ -210,7 +220,7 @@ export function ChatBox() {
                 setValue(e.target.value);
                 adjustHeight();
               }}
-              onKeyDown={handleKeyDown}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Jot down you thoughts..."
               className={cn(
                 "w-full px-4 py-3",
@@ -391,6 +401,8 @@ export function ChatBox() {
               )}
               <button
                 type="button"
+                onClick={handleSend}
+                disabled={!selectedModels ? true : false}
                 className={cn(
                   "px-1.5 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-between gap-1",
                   value.trim()
@@ -409,54 +421,56 @@ export function ChatBox() {
             </div>
           </div>
 
-          <Separator className="my-2 mx-3" />
+          {!selectedModels ? (
+            <div>
+              <Separator className="my-2 mx-3" />
+              <div className="flex flex-wrap items-start gap-2 w-full min-h-[32px] px-3 py-2">
+                {/* Chips area: model chips + parameter chips flow together and wrap naturally */}
+                <div className="flex flex-wrap items-start gap-2 w-full min-h-[32px]">
+                  {/* model chips (inline) */}
+                  <TooltipProvider>
+                    {normalizedSelectedModels.map((modelName) => (
+                      <Tooltip key={modelName}>
+                        <TooltipTrigger asChild>
+                          <Badge
+                            variant="secondary"
+                            className={
+                              "bg-green-100/50 border border-green-200 text-green-800/70 hover:text-green-900/70 font-medium cursor-default " +
+                              "max-w-[10rem] truncate min-w-0"
+                            }
+                            title={modelName}
+                          >
+                            {modelName.length > 16
+                              ? modelName.slice(0, 16) + "…"
+                              : modelName}
+                          </Badge>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="top"
+                          className="text-sm px-3 py-1.5 max-w-xs"
+                        >
+                          <p>{modelName}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                  </TooltipProvider>
 
-          {/* Flexible chips area: model chips + parameter chips */}
-          <div className="flex flex-wrap items-start gap-2 w-full min-h-[32px] px-3 py-2">
-            {/* Chips area: model chips + parameter chips flow together and wrap naturally */}
-            <div className="flex flex-wrap items-start gap-2 w-full min-h-[32px]">
-              {/* model chips (inline) */}
-              <TooltipProvider>
-                {normalizedSelectedModels.map((modelName) => (
-                  <Tooltip key={modelName}>
-                    <TooltipTrigger asChild>
+                  {/* parameter chips — remain inline and will wrap right after the last model chip */}
+                  <div className="flex gap-2 items-center min-w-0">
+                    {selectedChips.map((chip) => (
                       <Badge
+                        key={chip}
                         variant="secondary"
-                        className={
-                          "bg-green-100/50 border border-green-200 text-green-800/70 hover:text-green-900/70 font-medium cursor-default " +
-                          "max-w-[10rem] truncate min-w-0"
-                        }
-                        title={modelName}
+                        className="bg-blue-100/50 border border-blue-200 text-blue-800/70 hover:text-blue-900/70 font-medium max-w-[12rem] truncate min-w-0"
                       >
-                        {modelName.length > 16
-                          ? modelName.slice(0, 16) + "…"
-                          : modelName}
+                        {chip}
                       </Badge>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="top"
-                      className="text-sm px-3 py-1.5 max-w-xs"
-                    >
-                      <p>{modelName}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </TooltipProvider>
-
-              {/* parameter chips — remain inline and will wrap right after the last model chip */}
-              <div className="flex gap-2 items-center min-w-0">
-                {selectedChips.map((chip) => (
-                  <Badge
-                    key={chip}
-                    variant="secondary"
-                    className="bg-blue-100/50 border border-blue-200 text-blue-800/70 hover:text-blue-900/70 font-medium max-w-[12rem] truncate min-w-0"
-                  >
-                    {chip}
-                  </Badge>
-                ))}
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </div>
     </div>
