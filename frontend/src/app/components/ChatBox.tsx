@@ -370,8 +370,12 @@ export function ChatBox() {
               ) : (
                 // Single-select (Shadcn Select)
                 <Select
-                  value={selectedModels[0] || ""}
-                  onValueChange={(val) => setSelectedModels([val])}
+                  value={selectedModels[0] ?? ""}
+                  onValueChange={(val) =>
+                    setSelectedModels([
+                      typeof val === "string" ? val : val[0] ?? "",
+                    ])
+                  }
                 >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select model" />

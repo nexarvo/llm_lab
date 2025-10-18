@@ -17,11 +17,7 @@ export default function Page() {
 
         <section className="col-span-9">
           <div className="my-auto mb-4 w-full max-w-2xl">
-            <ChatBox
-              onComplete={(res: { results?: LLMResult[] }) =>
-                setResults(res?.results ?? [])
-              }
-            />
+            <ChatBox />
           </div>
 
           <div aria-live="polite">

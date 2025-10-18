@@ -21,9 +21,8 @@ function Select({
   return (
     <SelectPrimitive.Root
       data-slot="select"
-      multiple={multiple}
-      value={value as any}
-      onValueChange={onValueChange as any}
+      value={typeof value === "string" ? value : undefined}
+      onValueChange={onValueChange as ((val: string) => void) | undefined}
       {...props}
     />
   );

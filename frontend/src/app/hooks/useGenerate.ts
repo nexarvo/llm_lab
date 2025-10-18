@@ -24,9 +24,11 @@ export type LLMResult = {
 };
 
 export function useGenerate() {
-  return useMutation(async (payload: GeneratePayload) => {
-    const { data } = await api.post("/llms/generate", payload);
-    // assume { success, results, ... } shape
-    return data;
+  return useMutation<unknown, Error, GeneratePayload>({
+    mutationFn: async (payload: GeneratePayload) => {
+      const { data } = await api.post("/llms/generate", payload);
+      // assume { success, results, ... } shape
+      return data;
+    },
   });
 }
