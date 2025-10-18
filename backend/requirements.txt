@@ -3,7 +3,10 @@ uvicorn
 httpx
 pydantic
 sqlmodel
+sqlalchemy
+aiosqlite
 alembic
 python-dotenv
+textstat
 numpy
 requests
