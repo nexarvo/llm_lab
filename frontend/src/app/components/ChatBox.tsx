@@ -9,6 +9,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   Settings2,
+  Loader2,
 } from "lucide-react";
 import {
   Select,
@@ -33,6 +34,8 @@ import {
   TooltipTrigger,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { useLLMGeneration, useSupportedProviders } from "../hooks/useLLM";
+import { LLMRequest, LLMResult } from "@/types/llm";
 
 interface UseAutoResizeTextareaProps {
   minHeight: number;
@@ -89,17 +92,54 @@ function useAutoResizeTextarea({
 
 export function ChatBox({
   onFirstSend,
+  onResults,
+  setIsLoading,
   className,
 }: {
   onFirstSend?: () => void;
+  onResults?: (results: LLMResult[], experimentId?: string) => void;
+  setIsLoading?: (value: boolean) => void;
   className?: string;
 }) {
   const [input, setInput] = useState("");
 
-  const handleSend = () => {
+  // LLM hooks
+  const { mutateAsync: generateLLM, isPending, error } = useLLMGeneration();
+  const { data: providersData, error: providersError } =
+    useSupportedProviders();
+
+  const handleSend = async () => {
+    if (selectedModels.length === 0) return;
+
+    setIsLoading(true);
+
+    // Prepare the LLM request
+    const request: LLMRequest = {
+      prompt: input,
+      temperatures: multiModel ? [singleTemp] : tempRange,
+      top_ps: multiModel ? [singleTopP] : topPRange,
+      single_llm: !multiModel,
+      models: selectedModels,
+      mock_mode: selectedModels[0] === "Mock LLM (Testing)", // Use mock mode for testing
+    };
+
+    await generateLLM(request, {
+      onSuccess: (response) => {
+        console.log("LLM Response:", response);
+        if (onResults) {
+          onResults(response.results, (response as any).experiment_id);
+        }
+        setInput("");
+        setValue("");
+        // reset the textarea height
+        adjustHeight(true);
+      },
+      onError: (error) => {
+        console.error("LLM Generation Error:", error);
+      },
+    });
+
     if (onFirstSend) onFirstSend();
-    console.log("Message sent:", input);
-    setInput("");
   };
 
   const [value, setValue] = useState("");
@@ -134,48 +174,9 @@ export function ChatBox({
     }
   }, [tempRange, topPRange, multiModel, singleTemp, singleTopP]);
 
-  const models = [
-    // OpenAI Models
-    {
-      id: "gpt-5",
-      name: "GPT-5",
-      provider: "openai",
-    },
-    {
-      id: "gpt-4o",
-      name: "GPT-4o",
-      provider: "openai",
-    },
-
-    // Anthropic Models
-    { id: "claude-4", name: "Claude 4", provider: "anthropic" },
-    {
-      id: "claude-3-7-sonnet-20250219",
-      name: "Claude 3.7 Sonnet",
-      provider: "anthropic",
-    },
-
-    // Google Models
-    {
-      id: "gemini-2.5-flash",
-      name: "Gemini 2.5 Flash",
-      provider: "google",
-    },
-    {
-      id: "gemini-2.5-pro",
-      name: "Gemini 2.5 Pro",
-      provider: "google",
-    },
-
-    // OpenRouter Models
-    {
-      id: "openai/gpt-oss-20b:free",
-      name: "GPT-OSS (via Openrouter)",
-      provider: "openrouter",
-      description: "OpenAI GPT-OSS through Openrouter",
-    },
-
-    // Mock Models (for testing)
+  // Use models from API or fallback to hardcoded list
+  const models = providersData?.models || [
+    // Fallback models
     {
       id: "mock-model",
       name: "Mock LLM (Testing)",
@@ -184,16 +185,6 @@ export function ChatBox({
         "Mock LLM for testing parameter variations without API calls",
     },
   ];
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      if (value.trim()) {
-        setValue("");
-        adjustHeight(true);
-      }
-    }
-  };
 
   // Normalization function: always returns array for display, but stores as string in single-select mode
   function normalizeSelectedModels(
@@ -204,9 +195,6 @@ export function ChatBox({
     return [];
   }
   const normalizedSelectedModels = normalizeSelectedModels(selectedModels);
-
-  // near top of component (after normalizedSelectedModels exists)
-  const shouldStackChips = normalizedSelectedModels.length > 3;
 
   return (
     <div
@@ -221,6 +209,23 @@ export function ChatBox({
         </h1>
       ) : null}
 
+      {/* Error Messages */}
+      {error && (
+        <div className="w-full mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+          <p className="text-sm text-destructive">
+            Error generating response: {error.message}
+          </p>
+        </div>
+      )}
+
+      {providersError && (
+        <div className="w-full mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+          <p className="text-sm text-destructive">
+            Error loading models: {providersError.message}
+          </p>
+        </div>
+      )}
+
       <div className="w-full">
         <div className="relative bg-white rounded-xl border border-neutral-300">
           <div className="overflow-y-auto">
@@ -228,6 +233,7 @@ export function ChatBox({
               ref={textareaRef}
               value={value}
               onChange={(e) => {
+                setInput(e.target.value);
                 setValue(e.target.value);
                 adjustHeight();
               }}
@@ -413,21 +419,24 @@ export function ChatBox({
               <button
                 type="button"
                 onClick={handleSend}
-                disabled={!selectedModels ? true : false}
+                disabled={
+                  !value.trim() || selectedModels.length === 0 || isPending
+                }
                 className={cn(
                   "px-1.5 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-between gap-1",
-                  value.trim()
-                    ? "bg-secondary text-white"
-                    : "bg-secondary blur-900 text-white opacity-50 pointer-events-none"
+                  value.trim() && selectedModels.length > 0 && !isPending
+                    ? "bg-secondary text-white hover:bg-secondary/80"
+                    : "bg-secondary/50 text-white/50 cursor-not-allowed"
                 )}
               >
-                <ArrowUpIcon
-                  className={cn(
-                    "w-4 h-4",
-                    value.trim() ? "text-white" : "text-white"
-                  )}
-                />
-                <span className="sr-only">Send</span>
+                {isPending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ArrowUpIcon className="w-4 h-4" />
+                )}
+                <span className="sr-only">
+                  {isPending ? "Generating..." : "Send"}
+                </span>
               </button>
             </div>
           </div>
@@ -485,22 +494,5 @@ export function ChatBox({
         </div>
       </div>
     </div>
-  );
-}
-
-interface ActionButtonProps {
-  icon: React.ReactNode;
-  label: string;
-}
-
-function ActionButton({ icon, label }: ActionButtonProps) {
-  return (
-    <button
-      type="button"
-      className="flex items-center gap-2 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 rounded-full border border-neutral-800 text-neutral-400 hover:text-white transition-colors"
-    >
-      {icon}
-      <span className="text-xs">{label}</span>
-    </button>
   );
 }

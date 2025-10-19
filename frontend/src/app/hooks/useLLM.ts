@@ -1,0 +1,18 @@
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { generateLLMResponse, getSupportedProviders } from "@/lib/llm";
+import { LLMRequest, LLMResponse, ProvidersResponse } from "@/types/llm";
+
+export function useLLMGeneration() {
+  return useMutation<LLMResponse, Error, LLMRequest>({
+    mutationFn: generateLLMResponse,
+  });
+}
+
+export function useSupportedProviders() {
+  return useQuery<ProvidersResponse, Error>({
+    queryKey: ["providers"],
+    queryFn: getSupportedProviders,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+  });
+}

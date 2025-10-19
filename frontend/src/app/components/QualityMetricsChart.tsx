@@ -25,12 +25,11 @@ ChartJS.register(
 
 interface QualityMetricsChartProps {
   metrics: QualityMetric[];
-  experimentId: string;
+  experimentId?: string;
 }
 
 export default function QualityMetricsChart({
   metrics,
-  experimentId,
 }: QualityMetricsChartProps) {
   if (!metrics || metrics.length === 0) {
     return (
@@ -93,9 +92,11 @@ export default function QualityMetricsChart({
                 },
                 tooltip: {
                   callbacks: {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     title: (context: any) => {
                       return context[0].label;
                     },
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     label: (context: any) => {
                       return `${metric.name}: ${context.parsed.y}`;
                     },
