@@ -36,6 +36,7 @@ class LLMService:
         """
         start_time = time.time()
         results = []
+        experiment_id = ""
         
         try:
             logger.info(
@@ -54,13 +55,14 @@ class LLMService:
                 # Use multiple LLMs with single parameters
                 logger.info(f"Using multiple LLM mode with {len(request.models)} models: {request.models}")
                 results = await self._process_multiple_llms(request)
-
+                
             # Save experiment and responses to the database
             try:
                 async with AsyncSessionLocal() as db_session:
                     # create an experiment record; use provided name if available otherwise timestamp
                     exp_name = getattr(request, "experiment_name", None) or f"exp_{int(time.time())}"
                     experiment = await save_experiment(db_session, name=exp_name)
+                    experiment_id = experiment.id
 
                     # save all responses in a single transaction
                     # repository expects list[dict]; our `results` is already a list of dicts
@@ -90,6 +92,7 @@ class LLMService:
             
             return LLMResponse(
                 success=True,
+                experiment_id=str(experiment_id),
                 results=results,
                 total_requests=len(results),
                 successful_requests=successful_requests,
@@ -108,15 +111,7 @@ class LLMService:
                 execution_time=execution_time,
                 models=request.models
             )
-            return LLMResponse(
-                success=False,
-                results=[],
-                total_requests=0,
-                successful_requests=0,
-                failed_requests=0,
-                execution_time=execution_time,
-                message=f"Error processing request: {str(e)}"
-            )
+            raise
     
     async def _process_single_llm_with_variations(self, request: LLMRequest) -> List[Dict[str, Any]]:
         """
@@ -224,62 +219,90 @@ class LLMService:
     
     async def _process_multiple_llms(self, request: LLMRequest) -> List[Dict[str, Any]]:
         """
-        Process multiple LLMs with single parameters
-        
-        Args:
-            request: LLM request
-            
-        Returns:
-            List of results
+        Process multiple LLMs with single parameters (one temp/top_p applied to all models)
+
+        Mirrors the concurrency, timeout, and error normalization approach used in
+        _process_single_llm_with_variations.
         """
-        tasks = []
-        
-        for model_id in request.models:
-            # Get provider for this model
-            provider_type = Config.get_provider_for_model(model_id)
-            
-            # Create provider for each LLM using environment variables
-            provider = self.provider_factory.create_provider(
-                provider_type=provider_type,
-                api_key=Config.get_api_key(provider_type),
-                base_url=Config.get_base_url(provider_type)
+        try:
+            # Select a single temperature/top_p to use for all models
+            # Expect the client to provide exactly one element, but be defensive and pick the first.
+            temperature = float(request.temperatures[0]) if request.temperatures else 0.7
+            top_p = float(request.top_ps[0]) if request.top_ps else 0.9
+
+            # Build runner to execute calls concurrently with retries/backoff
+            runner = ConcurrencyRunner(
+                concurrency=Config.LLM_CONCURRENCY,
+                retries=Config.LLM_RETRIES,
+                backoff_factor=Config.LLM_BACKOFF_FACTOR,
+                logger_instance=logger,
             )
-            
-            # Create task for this LLM
-            task = self._execute_llm_request(
-                provider=provider,
-                prompt=request.prompt,
-                temperature=request.temperature,
-                top_p=request.top_p,
-                model=model_id,
-                provider_name=provider_type
+
+            # Worker: given model_id, resolve provider and execute the request
+            async def _single_call_factory(model_id: str):
+                provider_type = Config.get_provider_for_model(model_id)
+                provider = self.provider_factory.create_provider(
+                    provider_type=provider_type,
+                    api_key=Config.get_api_key(provider_type),
+                    base_url=Config.get_base_url(provider_type),
+                )
+                try:
+                    return await self._execute_llm_request(
+                        provider=provider,
+                        prompt=request.prompt,
+                        temperature=temperature,
+                        top_p=top_p,
+                        model=model_id,
+                        provider_name=provider_type,
+                    )
+                except Exception as e:
+                    # Bubble up; runner will handle retries/fail-fast
+                    raise
+
+            # Run all model calls concurrently
+            try:
+                raw_results = await runner.run(request.models, _single_call_factory)
+            except Exception as exc:
+                logger.error(
+                    "One or more LLM calls failed in multi-LLM mode",
+                    error=str(exc),
+                    models=request.models,
+                    temperature=temperature,
+                    top_p=top_p,
+                )
+                # Propagate to caller so top-level can handle as needed
+                raise
+
+            # Normalize results list
+            processed_results: List[Dict[str, Any]] = []
+            for i, model_id in enumerate(request.models):
+                result = raw_results[i]
+                if isinstance(result, Exception):
+                    provider_type = Config.get_provider_for_model(model_id)
+                    processed_results.append({
+                        'provider': provider_type,
+                        'model': model_id,
+                        'temperature': temperature,
+                        'top_p': top_p,
+                        'response': '',
+                        'tokens_used': 0,
+                        'execution_time': 0,
+                        'success': False,
+                        'error': str(result),
+                    })
+                else:
+                    processed_results.append(result)
+
+            return processed_results
+        except Exception as e:
+            logger.error(
+                f"Error processing multiple LLMs: {str(e)}",
+                error=str(e),
+                models=request.models,
+                temperatures=request.temperatures,
+                top_ps=request.top_ps,
             )
-            tasks.append(task)
-        
-        # Wait for all tasks to complete
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-        
-        # Process results and handle exceptions
-        processed_results = []
-        for i, result in enumerate(results):
-            model_id = request.models[i]
-            provider_type = Config.get_provider_for_model(model_id)
-            if isinstance(result, Exception):
-                processed_results.append({
-                    'provider': provider_type,
-                    'model': model_id,
-                    'temperature': request.temperature,
-                    'top_p': request.top_p,
-                    'response': '',
-                    'tokens_used': 0,
-                    'execution_time': 0,
-                    'success': False,
-                    'error': str(result)
-                })
-            else:
-                processed_results.append(result)
-        
-        return processed_results
+            raise
     
     async def _execute_llm_request(
         self,

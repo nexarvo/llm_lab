@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, validator
-from typing import List, Optional
+from typing import List, Optional, Any
 from enum import Enum
 
 class LLMProvider(str, Enum):
@@ -45,6 +45,7 @@ class LLMRequest(BaseModel):
 
 class LLMResponse(BaseModel):
     success: bool
+    experiment_id: Optional[str] = ""
     results: List[dict]
     total_requests: int
     successful_requests: int
@@ -53,12 +54,19 @@ class LLMResponse(BaseModel):
     message: Optional[str] = None
 
 class LLMResult(BaseModel):
-    provider: str
-    model: str
-    temperature: float
-    top_p: float
-    response: str
+    provider: str = ""
+    model: str = ""
+    temperature: float = 0.0
+    top_p: float = 0.0
+    response: str = ""
     tokens_used: Optional[int] = None
-    execution_time: float
-    success: bool
+    execution_time: float = 0.0
+    success: bool = False
     error: Optional[str] = None
+    
+class ExperimentResponse(BaseModel):
+    id: str
+    name: str = ""
+    results: List[Any] = []
+    created_at: Optional[float] = None
+    llm_results: list[LLMResult] = []
