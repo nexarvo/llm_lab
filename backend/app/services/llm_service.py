@@ -55,7 +55,7 @@ class LLMService:
                 logger.info(f"Using multiple LLM mode with {len(request.models)} models: {request.models}")
                 results = await self._process_multiple_llms(request)
 
-            # Persist experiment and responses to the database (best-effort)
+            # Save experiment and responses to the database
             try:
                 async with AsyncSessionLocal() as db_session:
                     # create an experiment record; use provided name if available otherwise timestamp

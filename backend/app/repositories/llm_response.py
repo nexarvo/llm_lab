@@ -11,12 +11,18 @@ async def get_responses_by_experiment(session: AsyncSession, experiment_id: str)
     """Return all Response rows for a given experiment id (ordered by id)."""
     try:
         logger.info(f"Getting llm responses with experiment id: {experiment_id}")
+        # Convert string to UUID if needed
+        if isinstance(experiment_id, str):
+            experiment_uuid = uuid.UUID(experiment_id)
+        else:
+            experiment_uuid = experiment_id
+            
         result = await session.execute(
-            select(LLMResponse).where(LLMResponse.experiment_id == experiment_id).order_by(Response.id)
+            select(LLMResponse).where(LLMResponse.experiment_id == experiment_uuid).order_by(LLMResponse.id)
         )
         logger.info(f"Successfully got llm responses with experiment id: {experiment_id}")
         return result.scalars().all()
-    except e:
+    except Exception as e:
         logger.error(f"Error getting llm responses with experiment id: {experiment_id}, error: {e}")
         raise
 

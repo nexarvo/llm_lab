@@ -87,7 +87,13 @@ function useAutoResizeTextarea({
   return { textareaRef, adjustHeight };
 }
 
-export function ChatBox({ onFirstSend }: { onFirstSend?: () => void }) {
+export function ChatBox({
+  onFirstSend,
+  className,
+}: {
+  onFirstSend?: () => void;
+  className?: string;
+}) {
   const [input, setInput] = useState("");
 
   const handleSend = () => {
@@ -203,7 +209,12 @@ export function ChatBox({ onFirstSend }: { onFirstSend?: () => void }) {
   const shouldStackChips = normalizedSelectedModels.length > 3;
 
   return (
-    <div className="flex flex-col items-center w-full max-w-4xl mx-auto px-4">
+    <div
+      className={cn(
+        "flex flex-col items-center w-full max-w-4xl mx-auto px-4",
+        className
+      )}
+    >
       {onFirstSend ? (
         <h1 className="text-4xl font-bold text-black dark:text-white">
           What do you want to compare today?
