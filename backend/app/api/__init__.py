@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from .llm_routes import router as llm_router
 from .health_routes import router as health_router
 from .metrics_routes import router as metrics_router
+from .experiment_routes import router as experiment_router
 
 # Create main API router
 api_router = APIRouter()
@@ -11,3 +12,4 @@ api_router = APIRouter()
 api_router.include_router(llm_router)
 api_router.include_router(health_router)
 api_router.include_router(metrics_router)
+api_router.include_router(experiment_router)

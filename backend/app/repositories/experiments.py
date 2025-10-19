@@ -25,10 +25,15 @@ async def get_experiment_by_id(session: AsyncSession, experiment_id: str) -> Exp
     """Fetch an experiment by ID."""
     try:
         logger.info(f"Getting experiment with id: {experiment_id}")
-        result = await session.execute(select(Experiment).where(Experiment.id == experiment_id))
+        # Convert string to UUID if needed
+        if isinstance(experiment_id, str):
+            experiment_uuid = uuid.UUID(experiment_id)
+        else:
+            experiment_uuid = experiment_id
+        result = await session.execute(select(Experiment).where(Experiment.id == experiment_uuid))
         logger.info(f"Successfully got experiment with id: {experiment_id}")
         return result.scalar_one_or_none()
-    except e:
+    except Exception as e:
         logger.error(f"Error getting experiment with id: {experiment_id}, error: {e}")
         raise
         
