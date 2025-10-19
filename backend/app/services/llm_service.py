@@ -7,6 +7,9 @@ from ..llm_providers.factory import LLMProviderFactory
 from ..config import Config
 from ..core.logger import Logger
 from ..services.concurrency_runner import ConcurrencyRunner
+from app.db.session import AsyncSessionLocal
+from app.repositories.experiments import save_experiment
+from app.repositories.llm_response import save_responses_transaction
 
 
 logger = Logger(__name__)
@@ -51,6 +54,28 @@ class LLMService:
                 # Use multiple LLMs with single parameters
                 logger.info(f"Using multiple LLM mode with {len(request.models)} models: {request.models}")
                 results = await self._process_multiple_llms(request)
+
+            # Persist experiment and responses to the database (best-effort)
+            try:
+                async with AsyncSessionLocal() as db_session:
+                    # create an experiment record; use provided name if available otherwise timestamp
+                    exp_name = getattr(request, "experiment_name", None) or f"exp_{int(time.time())}"
+                    experiment = await save_experiment(db_session, name=exp_name)
+
+                    # save all responses in a single transaction
+                    # repository expects list[dict]; our `results` is already a list of dicts
+                    created = await save_responses_transaction(db_session, experiment.id, results)
+                    logger.info(
+                        "Saved experiment and responses to database",
+                        experiment_id=str(experiment.id),
+                        created_responses=len(created),
+                    )
+            except Exception as db_exc:
+                # Log DB errors but do not fail the entire request — metrics should not block the LLM path
+                logger.error(
+                    "Failed to persist experiment/responses to DB",
+                    error=str(db_exc)
+                )
             
             execution_time = time.time() - start_time
             successful_requests = sum(1 for result in results if result.get('success', False))
@@ -72,6 +97,8 @@ class LLMService:
                 execution_time=execution_time,
                 message="Request processed successfully"
             )
+            
+            
             
         except Exception as e:
             execution_time = time.time() - start_time

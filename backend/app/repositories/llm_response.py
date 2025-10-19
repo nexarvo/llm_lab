@@ -1,45 +1,60 @@
+import uuid
 from typing import List, Dict, Any
 from sqlmodel import select
+from ..core.logger import Logger
 from sqlmodel.ext.asyncio.session import AsyncSession
-from app.models.response import LLMResponse
+from app.models.llm_response import LLMResponse
 
+logger = Logger(__name__)
 
-async def get_responses_by_experiment(session: AsyncSession, experiment_id: int) -> List[LLMResponse]:
+async def get_responses_by_experiment(session: AsyncSession, experiment_id: str) -> List[LLMResponse]:
     """Return all Response rows for a given experiment id (ordered by id)."""
-    result = await session.execute(
-        select(LLMResponse).where(LLMResponse.experiment_id == experiment_id).order_by(Response.id)
-    )
-    return result.scalars().all()
+    try:
+        logger.info(f"Getting llm responses with experiment id: {experiment_id}")
+        result = await session.execute(
+            select(LLMResponse).where(LLMResponse.experiment_id == experiment_id).order_by(Response.id)
+        )
+        logger.info(f"Successfully got llm responses with experiment id: {experiment_id}")
+        return result.scalars().all()
+    except e:
+        logger.error(f"Error getting llm responses with experiment id: {experiment_id}, error: {e}")
+        raise
 
 
 async def save_responses_transaction(
-    session: AsyncSession, experiment_id: int, responses: List[Dict[str, Any]]
+    session: AsyncSession, experiment_id: str, responses: List[Dict[str, Any]]
 ) -> List[LLMResponse]:
-    """
-    Save a list of responses in a single transaction and return the created Response objects.
-    """
-    created: List[LLMResponse] = []
+    try:
+        logger.info(f"Saving LLM responses for experiment id: {experiment_id}")
+        created: List[LLMResponse] = []
 
-    async with session.begin():
         for r in responses:
-            resp = Response(
+            resp = LLMResponse(
+                id=uuid.uuid4(),
                 experiment_id=experiment_id,
                 provider=r.get("provider", ""),
                 model=r.get("model", ""),
-                temperature=float(r.get("temperature", 0.0)) if r.get("temperature") is not None else 0.0,
-                top_p=float(r.get("top_p", 0.0)) if r.get("top_p") is not None else 0.0,
-                response_text=r.get("response_text") or r.get("response") or "",
-                tokens_used=r.get("tokens_used"),
-                execution_time=float(r.get("execution_time", 0.0)) if r.get("execution_time") is not None else 0.0,
+                temperature=float(r.get("temperature", 0.0)),
+                top_p=float(r.get("top_p", 0.0)),
+                response_text=r.get("response", ""),
+                tokens_used=int(r.get("tokens_used", 0)),
+                execution_time=float(r.get("execution_time", 0.0)),
                 success=bool(r.get("success", True)),
                 error=r.get("error"),
             )
             session.add(resp)
             created.append(resp)
 
-        # flush to push inserts and assign PKs, then refresh to populate attributes
+        # Flush to assign IDs
         await session.flush()
         for resp in created:
             await session.refresh(resp)
+            
+        await session.commit()
 
-    return created
+        logger.info(f"Successfully saved {len(created)} LLM responses for experiment id: {experiment_id}")
+        return created
+
+    except Exception as e:
+        logger.error(f"Error saving LLM responses for experiment id: {experiment_id}, error: {e}")
+        raise

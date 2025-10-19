@@ -1,23 +1,45 @@
+import uuid
 from sqlmodel import select
+from ..core.logger import Logger
 from sqlmodel.ext.asyncio.session import AsyncSession
-from app.models.experiment import Experiment
+from app.models.experiments import Experiment
 
+logger = Logger(__name__)
 
 async def save_experiment(session: AsyncSession, name: str) -> Experiment:
     """Insert a new experiment record."""
-    experiment = Experiment(name=name)
-    session.add(experiment)
-    await session.commit()
-    await session.refresh(experiment)
-    return experiment
+    try:
+        logger.info(f"Creating a new experiment with name: {name}")
+        experiment = Experiment(id=uuid.uuid4(), name=name)
+        session.add(experiment)
+        await session.commit()
+        await session.refresh(experiment)
+        logger.info(f"Experiment created with ID: {experiment.id}")
+        return experiment
+    except e:
+        logger.error(f"Error saving experiment created with ID: {experiment.id}, error: {e}")
+        raise
 
 
-async def get_experiment_by_id(session: AsyncSession, experiment_id: int) -> Experiment | None:
+async def get_experiment_by_id(session: AsyncSession, experiment_id: str) -> Experiment | None:
     """Fetch an experiment by ID."""
-    result = await session.execute(select(Experiment).where(Experiment.id == experiment_id))
-    return result.scalar_one_or_none()
+    try:
+        logger.info(f"Getting experiment with id: {experiment_id}")
+        result = await session.execute(select(Experiment).where(Experiment.id == experiment_id))
+        logger.info(f"Successfully got experiment with id: {experiment_id}")
+        return result.scalar_one_or_none()
+    except e:
+        logger.error(f"Error getting experiment with id: {experiment_id}, error: {e}")
+        raise
+        
 
 async def get_all_experiments(session: AsyncSession) -> list[Experiment]:
     """Fetch all experiments."""
-    result = await session.execute(select(Experiment))
-    return result.scalars().all()
+    try:
+        logger.info("Getting all experiments")
+        result = await session.execute(select(Experiment))
+        logger.info("Successfully got all experiments")
+        return result.scalars().all()
+    except e:
+        logger.error(f"Error getting all experiments with error: {e}")
+        raise
