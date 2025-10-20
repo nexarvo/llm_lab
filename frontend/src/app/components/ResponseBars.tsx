@@ -9,30 +9,21 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useChatStore } from "../store/chatStore";
+import { LLMResult } from "@/types/llm";
 
-type LLMResult = {
-  provider: string;
-  model: string;
-  temperature: number;
-  top_p: number;
-  response: string;
-  tokens_used?: number | null;
-  execution_time: number;
-  success: boolean;
-  error?: string | null;
-};
-
-export default function ResponseBars({
-  data,
-  isLoading,
-}: {
-  data?: LLMResult[];
-  isLoading: boolean;
-}) {
-  // Ensure items is always an array
+export default function ResponseBars({ data }: { data?: LLMResult[] }) {
+  const storeResults = useChatStore((s) => s.llmResults);
+  const isLoading = useChatStore((s) => s.isLoading);
+  // Ensure items is always an array, preferring props then store
   const items: LLMResult[] = useMemo(
-    () => (Array.isArray(data) ? data : []),
-    [data]
+    () =>
+      Array.isArray(data)
+        ? data
+        : Array.isArray(storeResults)
+        ? storeResults
+        : [],
+    [data, storeResults]
   );
 
   // stable ids (stringified indices)
@@ -77,8 +68,20 @@ export default function ResponseBars({
 
   const slots = [0, 1, 2];
 
-  // Show loading state if no data
+  // Loading and empty states
   if (isLoading) {
+    return (
+      <div className="w-full">
+        <div className="max-w-7xl mx-auto px-8 w-full">
+          <div className="flex items-center justify-center h-32 text-muted-foreground">
+            <p>Loading responses...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!items || items.length === 0) {
     return (
       <div className="w-full">
         <div className="max-w-7xl mx-auto px-8 w-full">
@@ -95,7 +98,6 @@ export default function ResponseBars({
       <h3 className="px-8 mb-4 text-lg font-semibold">
         Response comparison (pick up to 3)
       </h3>
-
       <div className="max-w-7xl mx-auto px-8 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start justify-between w-full">
           {slots.map((slotIndex) => {

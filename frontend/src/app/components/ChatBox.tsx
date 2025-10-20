@@ -35,6 +35,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { useLLMGeneration, useSupportedProviders } from "../hooks/useLLM";
+import { useChatStore } from "../store/chatStore";
 import { LLMRequest, LLMResult } from "@/types/llm";
 
 interface UseAutoResizeTextareaProps {
@@ -91,14 +92,10 @@ function useAutoResizeTextarea({
 }
 
 export function ChatBox({
-  onFirstSend,
   onResults,
-  setIsLoading,
   className,
 }: {
-  onFirstSend?: () => void;
   onResults?: (results: LLMResult[], experimentId?: string) => void;
-  setIsLoading?: (value: boolean) => void;
   className?: string;
 }) {
   const [input, setInput] = useState("");
@@ -108,10 +105,16 @@ export function ChatBox({
   const { data: providersData, error: providersError } =
     useSupportedProviders();
 
-  const handleSend = async () => {
-    if (selectedModels.length === 0) return;
+  const setIsLoading = useChatStore((s) => s.setIsLoading);
+  const setIsTransitioning = useChatStore((s) => s.setIsTransitioning);
+  const setCurrentExperimentId = useChatStore((s) => s.setCurrentExperimentId);
+  const setResults = useChatStore((s) => s.setResults);
 
-    setIsLoading(true);
+  const firstTimeSend = useChatStore((s) => s.firstTimeSend);
+
+  const handleSend = async () => {
+    console.log("selectedModels.length: ", selectedModels.length);
+    if (selectedModels.length === 0) return;
 
     // Prepare the LLM request
     const request: LLMRequest = {
@@ -123,23 +126,31 @@ export function ChatBox({
       mock_mode: selectedModels[0] === "Mock LLM (Testing)", // Use mock mode for testing
     };
 
-    await generateLLM(request, {
-      onSuccess: (response) => {
-        console.log("LLM Response:", response);
-        if (onResults) {
-          onResults(response.results, (response as any).experiment_id);
-        }
-        setInput("");
-        setValue("");
-        // reset the textarea height
-        adjustHeight(true);
-      },
-      onError: (error) => {
-        console.error("LLM Generation Error:", error);
-      },
-    });
+    if (firstTimeSend) setIsTransitioning(true);
 
-    if (onFirstSend) onFirstSend();
+    setIsLoading(true);
+
+    try {
+      const response = await generateLLM(request);
+
+      console.log("LLM Response (await):", response);
+
+      if (response) {
+        setResults(response.results);
+        setCurrentExperimentId(
+          response.experiment_id ? String(response.experiment_id) : ""
+        );
+      }
+
+      // clear loading & inputs
+      setIsLoading(false);
+      setInput("");
+      setValue("");
+      adjustHeight(true);
+    } catch (err) {
+      console.error("LLM Generation Error (await):", err);
+      setIsLoading(false);
+    }
   };
 
   const [value, setValue] = useState("");
@@ -203,7 +214,7 @@ export function ChatBox({
         className
       )}
     >
-      {onFirstSend ? (
+      {firstTimeSend ? (
         <h1 className="text-4xl font-bold text-black dark:text-white">
           What do you want to compare today?
         </h1>
