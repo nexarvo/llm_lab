@@ -5,6 +5,10 @@ import ResponseBars from "../components/ResponseBars";
 import QualityMetricsChart from "../components/QualityMetricsChart";
 import { useMetrics } from "../hooks/useMetrics";
 import { useChatStore } from "../store/chatStore";
+import { exportChatScreenToPDF } from "@/lib/pdfExport";
+import { Button } from "../components/ui/button";
+import { Download } from "lucide-react";
+import { useState } from "react";
 
 export default function ChatScreen() {
   const firstTimeSend = useChatStore((s) => s.firstTimeSend);
@@ -15,6 +19,8 @@ export default function ChatScreen() {
   const setFirstTimeSend = useChatStore((s) => s.setFirstTimeSend);
   const setIsTransitioning = useChatStore((s) => s.setIsTransitioning);
 
+  const [isExporting, setIsExporting] = useState(false);
+
   // Fetch metrics for the current experiment AFTER experiment data is available
   const enableMetrics = !!currentExperimentId && llmResults;
   const {
@@ -22,6 +28,27 @@ export default function ChatScreen() {
     isLoading: metricsLoading,
     error: metricsError,
   } = useMetrics(enableMetrics ? currentExperimentId : null);
+
+  const handleExportPDF = async () => {
+    if (!llmResults || llmResults.length === 0) {
+      alert("No results to export. Please generate some responses first.");
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      await exportChatScreenToPDF(
+        llmResults,
+        metrics || [],
+        currentExperimentId
+      );
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      alert("Failed to export PDF. Please try again.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
@@ -55,6 +82,25 @@ export default function ChatScreen() {
 
         {!firstTimeSend && (
           <>
+            {/* Export Button */}
+            <div className="absolute top-4 right-4 z-10">
+              <Button
+                onClick={handleExportPDF}
+                disabled={
+                  isLoading ||
+                  isExporting ||
+                  !llmResults ||
+                  llmResults.length === 0
+                }
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2 bg-emerald-200/50 text-emerald-800/70 hover:bg-emerald-300/50 hover:text-emerald-900/70"
+              >
+                <Download className="h-4 w-4" />
+                {isExporting ? "Exporting..." : "Export PDF"}
+              </Button>
+            </div>
+
             <div className="max-w-7xl w-full flex-1 flex flex-col items-center justify-center mb-8 space-y-8">
               <ResponseBars data={llmResults} />
               {currentExperimentId && (
