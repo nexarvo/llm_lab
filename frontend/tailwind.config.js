@@ -28,6 +28,9 @@ module.exports = {
         ring: "var(--ring)",
         // Add sidebar, chart colors if needed
       },
+      fontFamily: {
+        sans: ["var(--font-sans)", "sans-serif"],
+      },
     },
   },
   plugins: [],

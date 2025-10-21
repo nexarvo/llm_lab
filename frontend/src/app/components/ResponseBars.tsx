@@ -26,6 +26,8 @@ export default function ResponseBars({ data }: { data?: LLMResult[] }) {
     [data, storeResults]
   );
 
+  console.log("items: ", items);
+
   // stable ids (stringified indices)
   const ids = useMemo(() => items.map((_, i) => String(i)), [items]);
 
@@ -175,9 +177,9 @@ export default function ResponseBars({ data }: { data?: LLMResult[] }) {
                       </div>
 
                       <div className="mt-3 flex-1 text-sm text-slate-700 dark:text-slate-200 overflow-auto">
-                        {item.response ? (
+                        {item.response || item["response_text"] ? (
                           <p className="whitespace-pre-wrap break-words">
-                            {item.response}
+                            {item.response || item["response_text"]}
                           </p>
                         ) : (
                           <p className="italic text-muted-foreground">

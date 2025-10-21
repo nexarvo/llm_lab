@@ -9,6 +9,7 @@ interface ChatState {
   isTransitioning: boolean;
   currentExperimentId: string;
   isLoading: boolean; // LLM generation loading
+  isNavCollapsed: boolean;
   llmResults: LLMResult[];
   setFirstTimeSend: (v: boolean) => void;
   setIsTransitioning: (v: boolean) => void;
@@ -25,11 +26,13 @@ export const useChatStore = create<ChatState>()(
       isTransitioning: false,
       currentExperimentId: "",
       isLoading: false,
+      isNavCollapsed: true,
       llmResults: [],
       setFirstTimeSend: (v: boolean) => set({ firstTimeSend: v }),
       setIsTransitioning: (v: boolean) => set({ isTransitioning: v }),
       setCurrentExperimentId: (v: string) => set({ currentExperimentId: v }),
       setIsLoading: (v: boolean) => set({ isLoading: v }),
+      setIsNavCollapsed: (v: boolean) => set({ isNavCollapsed: v }),
       setResults: (results: LLMResult[]) => set({ llmResults: results }),
       reset: () =>
         set({
@@ -37,6 +40,7 @@ export const useChatStore = create<ChatState>()(
           isTransitioning: false,
           currentExperimentId: "",
           isLoading: false,
+          isNavCollapsed: true,
           llmResults: [],
         }),
     }),

@@ -1,5 +1,5 @@
 from app.validations.llm_requests import ExperimentResponse
-from app.repositories.experiments import get_experiment_by_id
+from app.repositories.experiments import get_experiment_by_id, get_all_experiments
 from app.repositories.llm_response import get_responses_by_experiment
 from app.db.session import AsyncSessionLocal
 from ..core.logger import Logger

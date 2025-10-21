@@ -3,12 +3,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChatBox } from "../components/ChatBox";
 import ResponseBars from "../components/ResponseBars";
 import QualityMetricsChart from "../components/QualityMetricsChart";
+import { SideNavigation } from "../components/SideNavigation";
 import { useMetrics } from "../hooks/useMetrics";
 import { useChatStore } from "../store/chatStore";
 import { exportChatScreenToPDF } from "@/lib/pdfExport";
 import { Button } from "../components/ui/button";
-import { Download } from "lucide-react";
+import { Download, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import ExperimentDetailScreen from "./ExperimentDetailScreen";
+import APIKeysManagementScreen from "./APIKeysManagementScreen";
 
 export default function ChatScreen() {
   const firstTimeSend = useChatStore((s) => s.firstTimeSend);
@@ -20,6 +23,10 @@ export default function ChatScreen() {
   const setIsTransitioning = useChatStore((s) => s.setIsTransitioning);
 
   const [isExporting, setIsExporting] = useState(false);
+  const [selectedExperimentId, setSelectedExperimentId] = useState<
+    string | null
+  >(null);
+  const [showKeysPage, setShowKeysPage] = useState(false);
 
   // Fetch metrics for the current experiment AFTER experiment data is available
   const enableMetrics = !!currentExperimentId && llmResults;
@@ -49,6 +56,34 @@ export default function ChatScreen() {
       setIsExporting(false);
     }
   };
+
+  const handleExperimentSelect = (experimentId: string) => {
+    setSelectedExperimentId(experimentId);
+  };
+
+  const handleBackToMain = () => {
+    setSelectedExperimentId(null);
+    setShowKeysPage(false);
+  };
+
+  const handleKeysPage = () => {
+    setShowKeysPage(true);
+  };
+
+  // Show experiment detail screen if an experiment is selected
+  if (selectedExperimentId) {
+    return (
+      <ExperimentDetailScreen
+        experimentId={selectedExperimentId}
+        onBack={handleBackToMain}
+      />
+    );
+  }
+
+  // Show keys page if requested
+  if (showKeysPage) {
+    return <APIKeysManagementScreen onBack={handleBackToMain} />;
+  }
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
@@ -82,6 +117,12 @@ export default function ChatScreen() {
 
         {!firstTimeSend && (
           <>
+            {/* Side Navigation */}
+            <SideNavigation
+              onExperimentSelect={handleExperimentSelect}
+              onKeysPage={handleKeysPage}
+            />
+
             {/* Export Button */}
             <div className="absolute top-4 right-4 z-10">
               <Button

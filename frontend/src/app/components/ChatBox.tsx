@@ -36,7 +36,9 @@ import {
 } from "@/components/ui/tooltip";
 import { useLLMGeneration, useSupportedProviders } from "../hooks/useLLM";
 import { useChatStore } from "../store/chatStore";
+import { useAPIKeysStore } from "../store/apiKeysStore";
 import { LLMRequest, LLMResult } from "@/types/llm";
+import { APIKeysModal } from "./APIKeysModal";
 
 interface UseAutoResizeTextareaProps {
   minHeight: number;
@@ -116,6 +118,24 @@ export function ChatBox({
     console.log("selectedModels.length: ", selectedModels.length);
     if (selectedModels.length === 0) return;
 
+    // Check if we need API keys for the selected models
+    const requiredProviders = getRequiredProviders(selectedModels);
+    const missingProviders = getMissingProviders(requiredProviders);
+
+    if (missingProviders.length > 0) {
+      setShowAPIKeysModal(true);
+      return;
+    }
+
+    // Get API keys for the required providers
+    const apiKeys: Record<string, string> = {};
+    requiredProviders.forEach((provider) => {
+      const apiKey = getApiKey(provider);
+      if (apiKey) {
+        apiKeys[provider] = apiKey.key;
+      }
+    });
+
     // Prepare the LLM request
     const request: LLMRequest = {
       prompt: input,
@@ -124,6 +144,7 @@ export function ChatBox({
       single_llm: !multiModel,
       models: selectedModels,
       mock_mode: selectedModels[0] === "Mock LLM (Testing)", // Use mock mode for testing
+      api_keys: Object.keys(apiKeys).length > 0 ? apiKeys : undefined,
     };
 
     if (firstTimeSend) setIsTransitioning(true);
@@ -169,6 +190,28 @@ export function ChatBox({
   const [singleTopP, setSingleTopP] = useState(0.9);
 
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
+  const [showAPIKeysModal, setShowAPIKeysModal] = useState(false);
+
+  const { getMissingProviders, hasApiKey, getApiKey } = useAPIKeysStore();
+
+  // Helper function to get required providers for selected models
+  const getRequiredProviders = (models: string[]): string[] => {
+    const providers = new Set<string>();
+    models.forEach((model) => {
+      // Map model names to providers
+      if (model.includes("GPT") || model.includes("gpt")) {
+        providers.add("openai");
+      } else if (model.includes("Claude") || model.includes("claude")) {
+        providers.add("anthropic");
+      } else if (model.includes("Gemini") || model.includes("gemini")) {
+        providers.add("google");
+      } else if (model.includes("OpenRouter") || model.includes("openrouter")) {
+        providers.add("openrouter");
+      }
+      // Mock models don't need API keys
+    });
+    return Array.from(providers);
+  };
 
   // When a slider value changes, update the corresponding chip
   useEffect(() => {
@@ -215,7 +258,7 @@ export function ChatBox({
       )}
     >
       {firstTimeSend ? (
-        <h1 className="text-4xl font-bold text-black dark:text-white">
+        <h1 className="text-4xl font-bold text-black dark:text-white font-mono">
           What do you want to compare today?
         </h1>
       ) : null}
@@ -452,7 +495,7 @@ export function ChatBox({
             </div>
           </div>
 
-          {!selectedModels ? (
+          {selectedModels ? (
             <div>
               <Separator className="my-2 mx-3" />
               <div className="flex flex-wrap items-start gap-2 w-full min-h-[32px] px-3 py-2">
@@ -487,23 +530,37 @@ export function ChatBox({
                   </TooltipProvider>
 
                   {/* parameter chips — remain inline and will wrap right after the last model chip */}
-                  <div className="flex gap-2 items-center min-w-0">
-                    {selectedChips.map((chip) => (
-                      <Badge
-                        key={chip}
-                        variant="secondary"
-                        className="bg-blue-100/50 border border-blue-200 text-blue-800/70 hover:text-blue-900/70 font-medium max-w-[12rem] truncate min-w-0"
-                      >
-                        {chip}
-                      </Badge>
-                    ))}
-                  </div>
+                  {selectedModels ? (
+                    <div className="flex gap-2 items-center min-w-0">
+                      {selectedChips.map((chip) => (
+                        <Badge
+                          key={chip}
+                          variant="secondary"
+                          className="bg-blue-100/50 border border-blue-200 text-blue-800/70 hover:text-blue-900/70 font-medium max-w-[12rem] truncate min-w-0"
+                        >
+                          {chip}
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>
           ) : null}
         </div>
       </div>
+
+      {/* API Keys Modal */}
+      <APIKeysModal
+        isOpen={showAPIKeysModal}
+        onClose={() => setShowAPIKeysModal(false)}
+        requiredProviders={getRequiredProviders(selectedModels)}
+        onComplete={() => {
+          setShowAPIKeysModal(false);
+          // Retry the send after API keys are configured
+          handleSend();
+        }}
+      />
     </div>
   );
 }

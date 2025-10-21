@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, validator
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Dict
 from enum import Enum
 
 class LLMProvider(str, Enum):
@@ -18,6 +18,7 @@ class LLMRequest(BaseModel):
     single_llm: bool = Field(..., description="Whether to use single LLM with parameter variations or multiple LLMs")
     models: List[str] = Field(..., min_items=1, max_items=10, description="List of model IDs from /llm/providers")
     mock_mode: bool = Field(default=False, description="Use mock LLM responses for testing (only works with single_llm=True)")
+    api_keys: Optional[Dict[str, str]] = Field(default=None, description="API keys for different providers")
     
     @validator('temperatures')
     def validate_temperatures(cls, v):

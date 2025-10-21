@@ -141,10 +141,17 @@ class LLMService:
                 request.top_ps
             )
             
+            # Get API key from request or config
+            api_key = None
+            if request.api_keys and provider_type in request.api_keys:
+                api_key = request.api_keys[provider_type]
+            else:
+                api_key = Config.get_api_key(provider_type)
+            
             # Create provider
             provider = self.provider_factory.create_provider(
                 provider_type=provider_type,
-                api_key=Config.get_api_key(provider_type),
+                api_key=api_key,
                 base_url=Config.get_base_url(provider_type)
             )
             
