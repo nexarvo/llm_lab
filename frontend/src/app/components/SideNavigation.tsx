@@ -13,8 +13,8 @@ import {
   History,
   Key,
   ChevronDown,
-  ChevronRight,
-  ChevronLeft,
+  ArrowLeftFromLine,
+  PanelLeft,
   ChevronUp,
   Calendar,
   FileText,
@@ -72,9 +72,9 @@ export function SideNavigation({
               onClick={() => setIsNavCollapsed?.(!isNavCollapsed)}
             >
               {isNavCollapsed ? (
-                <ChevronRight className="h-5 w-5" />
+                <PanelLeft className="h-5 w-5" />
               ) : (
-                <ChevronLeft className="h-5 w-5" />
+                <ArrowLeftFromLine className="h-5 w-5" />
               )}
             </Button>
           </div>
@@ -144,7 +144,7 @@ export function SideNavigation({
                     {experimentsOpen ? (
                       <ChevronDown className="h-4 w-4" />
                     ) : (
-                      <ChevronRight className="h-4 w-4" />
+                      <ArrowLeftFromLine className="h-4 w-4" />
                     )}
                   </Button>
                 </CollapsibleTrigger>
