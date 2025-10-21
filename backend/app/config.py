@@ -2,6 +2,7 @@ import os
 from typing import Dict, Any, Optional
 from dotenv import load_dotenv
 import requests
+from .consts import MODEL_PROVIDER_MAP, PROVIDER_CONFIG
 # Load environment variables
 load_dotenv()
 
@@ -27,26 +28,8 @@ class Config:
     LLM_RETRIES = int(os.getenv("LLM_RETRIES", 2))
     LLM_BACKOFF_FACTOR = float(os.getenv("LLM_BACKOFF_FACTOR", 0.5))
     LLM_TIMEOUT = float(os.getenv("LLM_TIMEOUT", 60.0))
-    # Model to provider mapping
-    MODEL_PROVIDER_MAP = {
-        # OpenAI Models
-        "gpt-5": "openai",
-        "gpt-4o": "openai",
-        
-        # Anthropic Models
-        "claude-4": "anthropic",
-        "claude-3-7-sonnet-20250219": "anthropic",
-        
-        # Google Models
-        "gemini-2.5-flash": "google",
-        "gemini-2.5-pro": "google",
-        
-        # OpenRouter Models
-        "openai/gpt-oss-20b:free": "openrouter",
-        
-        # Mock Models (for testing)
-        "mock-model": "mock",
-    }
+    # Model to provider mapping (imported from consts)
+    MODEL_PROVIDER_MAP = MODEL_PROVIDER_MAP
     
     @classmethod
     def get_ollama_models(cls) -> list[dict[str, str]]:
@@ -62,28 +45,27 @@ class Config:
     @classmethod
     def get_api_key(cls, provider: str) -> Optional[str]:
         """Get API key for a provider"""
-        key_map = {
-            "openai": cls.OPENAI_API_KEY,
-            "anthropic": cls.ANTHROPIC_API_KEY,
-            "google": cls.GOOGLE_API_KEY,
-            "openrouter": cls.OPENROUTER_API_KEY,
-            "ollama": None,  # No API key needed for local Ollama
-            "llama_cpp": None  # No API key needed for local llama.cpp
-        }
-        return key_map.get(provider)
+        if provider not in PROVIDER_CONFIG:
+            return None
+        
+        api_key_env = PROVIDER_CONFIG[provider]["api_key_env"]
+        if api_key_env is None:
+            return None
+        
+        return getattr(cls, api_key_env)
     
     @classmethod
     def get_base_url(cls, provider: str) -> str:
         """Get base URL for a provider"""
-        url_map = {
-            "openai": cls.OPENAI_BASE_URL,
-            "anthropic": cls.ANTHROPIC_BASE_URL,
-            "google": cls.GOOGLE_BASE_URL,
-            "openrouter": cls.OPENROUTER_BASE_URL,
-            "ollama": cls.OLLAMA_BASE_URL,
-            "llama_cpp": cls.LLAMA_CPP_BASE_URL
-        }
-        return url_map.get(provider, "")
+        if provider not in PROVIDER_CONFIG:
+            return ""
+        
+        base_url_env = PROVIDER_CONFIG[provider]["base_url_env"]
+        default_base_url = PROVIDER_CONFIG[provider]["default_base_url"]
+        
+        if base_url_env:
+            return getattr(cls, base_url_env)
+        return default_base_url
     
     @classmethod
     def get_provider_for_model(cls, model_id: str) -> str:
@@ -98,12 +80,11 @@ class Config:
     @classmethod
     def validate_api_keys(cls) -> Dict[str, bool]:
         """Validate that required API keys are present"""
-        validation = {
-            "openai": cls.OPENAI_API_KEY is not None,
-            "anthropic": cls.ANTHROPIC_API_KEY is not None,
-            "google": cls.GOOGLE_API_KEY is not None,
-            "openrouter": cls.OPENROUTER_API_KEY is not None,
-            "ollama": True,  # Local service, no API key needed
-            "llama_cpp": True  # Local service, no API key needed
-        }
+        validation = {}
+        for provider, config in PROVIDER_CONFIG.items():
+            if config["api_key_env"] is None:
+                validation[provider] = True  # Local service, no API key needed
+            else:
+                api_key = getattr(cls, config["api_key_env"])
+                validation[provider] = api_key is not None
         return validation

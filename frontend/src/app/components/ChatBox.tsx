@@ -424,15 +424,15 @@ export function ChatBox({
                   </PopoverTrigger>
                   <PopoverContent className="w-60 p-3 space-y-2">
                     {models.map((m) => {
-                      const isSelected = selectedModels.includes(m.name);
+                      const isSelected = selectedModels.includes(m.id);
                       return (
                         <div
-                          key={m.name}
+                          key={m.id}
                           onClick={() =>
                             setSelectedModels((prev) =>
                               isSelected
-                                ? prev.filter((x) => x !== m.name)
-                                : [...prev, m.name]
+                                ? prev.filter((x) => x !== m.id)
+                                : [...prev, m.id]
                             )
                           }
                           className={`flex items-center justify-between px-2 py-1.5 rounded cursor-pointer hover:bg-muted ${
@@ -463,7 +463,7 @@ export function ChatBox({
                   </SelectTrigger>
                   <SelectContent>
                     {models.map((m) => (
-                      <SelectItem key={m.name} value={m.name}>
+                      <SelectItem key={m.id} value={m.id}>
                         {m.name}
                       </SelectItem>
                     ))}

@@ -6,6 +6,7 @@ from .ollama_provider import OllamaProvider
 from .llama_cpp_provider import LlamaCppProvider
 from .openrouter_provider import OpenRouterProvider
 from .mock_provider import MockProvider
+from ..consts import SUPPORTED_PROVIDERS, MODEL_PROVIDER_MAP
 
 class LLMProviderFactory:
     """Factory class for creating LLM providers"""

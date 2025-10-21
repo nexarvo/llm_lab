@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from ..validations.llm_requests import LLMRequest, LLMResponse
 from ..services.llm_service import LLMService
 from ..llm_providers.factory import LLMProviderFactory
+from ..consts import SUPPORTED_MODELS
 import requests
 
 
@@ -43,49 +44,5 @@ async def get_supported_providers():
         print(e)
         ollama_models = []
     return {
-        "models": [
-            # OpenAI Models
-            {
-               "id": "gpt-5",
-               "name": "GPT-5",
-               "provider": "openai",
-            },
-            {
-                "id": "gpt-4o",
-                "name": "GPT-4o",
-                "provider": "openai",
-            },
-            
-            # Anthropic Models
-            {"id": "claude-4", "name": "Claude 4", "provider": "anthropic"},
-            {"id": "claude-3-7-sonnet-20250219", "name": "Claude 3.7 Sonnet", "provider": "anthropic"},
-            
-            # Google Models
-            {
-                "id": "gemini-2.5-flash",
-                "name": "Gemini 2.5 Flash",
-                "provider": "google",
-            },
-            {
-                "id": "gemini-2.5-pro",
-                "name": "Gemini 2.5 Pro",
-                "provider": "google",
-            },
-            
-            # OpenRouter Models
-            {
-                "id": "openai/gpt-oss-20b:free",
-                "name": "GPT-OSS (via OpenRouter)",
-                "provider": "openrouter",
-                "description": "OpenAI GPT-OSS through OpenRouter",
-            },
-            
-            # Mock Models (for testing)
-            {
-                "id": "mock-model",
-                "name": "Mock LLM (Testing)",
-                "provider": "mock",
-                "description": "Mock LLM for testing parameter variations without API calls",
-            },
-        ] + ollama_models[:2],
+        "models": SUPPORTED_MODELS + ollama_models[:2],
     }

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, validator
 from typing import List, Optional, Any, Dict
 from enum import Enum
+from ..consts import SUPPORTED_PROVIDERS
 
 class LLMProvider(str, Enum):
     OPENAI = "openai"

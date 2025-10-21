@@ -134,6 +134,7 @@ class LLMService:
                 model_id = "mock-model"
             else:
                 provider_type = Config.get_provider_for_model(model_id)
+                print("hi: ", provider_type)
             
             # Calculate parameter variations
             parameter_combinations = generate_parameter_combinations(
