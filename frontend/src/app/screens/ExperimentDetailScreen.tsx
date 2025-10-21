@@ -10,6 +10,7 @@ import { Button } from "../components/ui/button";
 import { ArrowLeft, Download, Calendar, FileText } from "lucide-react";
 import { exportChatScreenToPDF } from "@/lib/pdfExport";
 import { useState } from "react";
+import { useChatStore } from "../store/chatStore";
 
 interface ExperimentDetailScreenProps {
   experimentId: string;
@@ -22,6 +23,8 @@ export default function ExperimentDetailScreen({
 }: ExperimentDetailScreenProps) {
   const [isExporting, setIsExporting] = useState(false);
 
+  const isLoading = useChatStore((s) => s.isLoading);
+
   const {
     data: experiment,
     isLoading: experimentLoading,
@@ -33,8 +36,6 @@ export default function ExperimentDetailScreen({
     isLoading: metricsLoading,
     error: metricsError,
   } = useMetrics(experimentId);
-
-  console.log("hi: ", experiment?.llm_results);
 
   const handleExportPDF = async () => {
     if (!experiment?.llm_results || experiment.llm_results.length === 0) {
@@ -112,12 +113,14 @@ export default function ExperimentDetailScreen({
             <Button
               onClick={handleExportPDF}
               disabled={
+                isLoading ||
                 isExporting ||
                 !experiment.llm_results ||
                 experiment.llm_results.length === 0
               }
               variant="outline"
               size="sm"
+              className="flex items-center gap-2 bg-emerald-200/50 text-emerald-800/70 hover:bg-emerald-300/50 hover:text-emerald-900/70"
             >
               <Download className="h-4 w-4 mr-2" />
               {isExporting ? "Exporting..." : "Export PDF"}
@@ -136,7 +139,11 @@ export default function ExperimentDetailScreen({
         >
           {/* Response Bars */}
           {experiment.llm_results && experiment.llm_results.length > 0 ? (
-            <ResponseBars data={experiment.llm_results} />
+            <ResponseBars
+              data={experiment.llm_results}
+              originalPrompt={experiment.orginal_message}
+              isExperimentDetailScreen={true}
+            />
           ) : (
             <div className="text-center py-12">
               <p className="text-muted-foreground">

@@ -24,7 +24,7 @@ class LLMService:
     def __init__(self):
         self.provider_factory = LLMProviderFactory()
     
-    async def process_llm_request(self, request: LLMRequest) -> LLMResponse:
+    async def process_llm_request(self, experiment_id: str, request: LLMRequest) -> LLMResponse:
         """
         Process LLM request based on single_llm flag
         
@@ -36,7 +36,6 @@ class LLMService:
         """
         start_time = time.time()
         results = []
-        experiment_id = ""
         
         try:
             logger.info(
@@ -59,14 +58,9 @@ class LLMService:
             # Save experiment and responses to the database
             try:
                 async with AsyncSessionLocal() as db_session:
-                    # create an experiment record; use provided name if available otherwise timestamp
-                    exp_name = getattr(request, "experiment_name", None) or f"exp_{int(time.time())}"
-                    experiment = await save_experiment(db_session, name=exp_name)
-                    experiment_id = experiment.id
-
                     # save all responses in a single transaction
                     # repository expects list[dict]; our `results` is already a list of dicts
-                    created = await save_responses_transaction(db_session, experiment.id, results)
+                    created = await save_responses_transaction(db_session, experiment_id, results)
                     logger.info(
                         "Saved experiment and responses to database",
                         experiment_id=str(experiment.id),

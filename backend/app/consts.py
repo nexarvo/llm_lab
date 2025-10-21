@@ -2,6 +2,15 @@
 Constants for LLM providers and models
 """
 from typing import Dict, List, Any
+from enum import Enum
+
+# Experiment status constants
+class ExperimentStatus(str, Enum):
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
 
 # Supported provider types
 SUPPORTED_PROVIDERS = {

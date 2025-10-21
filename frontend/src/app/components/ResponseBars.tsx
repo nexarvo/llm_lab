@@ -11,10 +11,22 @@ import {
 } from "@/components/ui/select";
 import { useChatStore } from "../store/chatStore";
 import { LLMResult } from "@/types/llm";
+import { ExperimentStatus } from "./ExperimentStatus";
 
-export default function ResponseBars({ data }: { data?: LLMResult[] }) {
+export default function ResponseBars({
+  data,
+  prompt,
+  isExperimentDetailScreen = false,
+}: {
+  data?: LLMResult[];
+  prompt?: string;
+  isExperimentDetailScreen: boolean;
+}) {
   const storeResults = useChatStore((s) => s.llmResults);
   const isLoading = useChatStore((s) => s.isLoading);
+  const currentExperimentId = useChatStore((s) => s.currentExperimentId);
+  const originalPrompt = useChatStore((s) => s.originalPrompt);
+
   // Ensure items is always an array, preferring props then store
   const items: LLMResult[] = useMemo(
     () =>
@@ -68,7 +80,8 @@ export default function ResponseBars({ data }: { data?: LLMResult[] }) {
     });
   }
 
-  const slots = [0, 1, 2];
+  const slots =
+    items.length > 3 ? [0, 1, 2] : items.length === 2 ? [0, 1] : [0];
 
   // Loading and empty states
   if (isLoading) {
@@ -76,7 +89,7 @@ export default function ResponseBars({ data }: { data?: LLMResult[] }) {
       <div className="w-full">
         <div className="max-w-7xl mx-auto px-8 w-full">
           <div className="flex items-center justify-center h-32 text-muted-foreground">
-            <p>Loading responses...</p>
+            <ExperimentStatus experimentId={currentExperimentId} />
           </div>
         </div>
       </div>
@@ -97,9 +110,17 @@ export default function ResponseBars({ data }: { data?: LLMResult[] }) {
 
   return (
     <div className="w-full">
-      <h3 className="px-8 mb-4 text-lg font-semibold">
-        Response comparison (pick up to 3)
-      </h3>
+      <h3 className="px-8 mb-4 text-xl font-semibold">Response comparison</h3>
+      {(isExperimentDetailScreen ? prompt : originalPrompt) && (
+        <div className="flex justify-end mb-10">
+          <div className="px-8 self-end bg-neutral-300/30 py-6 w-xl rounded-lg">
+            <span className="text-sm">
+              {isExperimentDetailScreen ? prompt : originalPrompt}
+            </span>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-8 w-full">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start justify-between w-full">
           {slots.map((slotIndex) => {
@@ -125,7 +146,7 @@ export default function ResponseBars({ data }: { data?: LLMResult[] }) {
                       <SelectValue
                         placeholder={
                           showCard
-                            ? `${item?.model} — ${item?.provider}`
+                            ? `${item?.model} — ${item?.provider} [temp: ${item?.temperature}, top_p: ${item?.top_p}]`
                             : "Select response"
                         }
                       />
@@ -135,7 +156,11 @@ export default function ResponseBars({ data }: { data?: LLMResult[] }) {
                         const opt = items[Number(id)];
                         return (
                           <SelectItem key={id} value={id}>
-                            {opt.model} — {opt.provider}
+                            {opt.model} — {opt.provider}{" "}
+                            {items.length > 3
+                              ? `[temp:
+                            ${item?.temperature}, top_p: ${item?.top_p}]`
+                              : null}
                           </SelectItem>
                         );
                       })}

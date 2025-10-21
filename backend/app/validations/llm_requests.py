@@ -69,6 +69,7 @@ class LLMResult(BaseModel):
 class ExperimentResponse(BaseModel):
     id: str
     name: str = ""
+    original_message: str =""
     results: List[Any] = []
     created_at: Optional[float] = None
     llm_results: list[LLMResult] = []

@@ -1,5 +1,5 @@
 from app.validations.llm_requests import ExperimentResponse
-from app.repositories.experiments import get_experiment_by_id, get_all_experiments
+from app.repositories.experiments import get_experiment_by_id, get_all_experiments, get_experiment_with_responses
 from app.repositories.llm_response import get_responses_by_experiment
 from app.db.session import AsyncSessionLocal
 from ..core.logger import Logger
@@ -32,6 +32,7 @@ async def fetch_experiment(experiment_id: str) -> ExperimentResponse:
                 return ExperimentResponse(
                     id=str(experiment_id),
                     name="",
+                    original_message="",
                     results=[],
                     llm_results=[],
                 )
@@ -81,6 +82,7 @@ async def fetch_experiment(experiment_id: str) -> ExperimentResponse:
         return ExperimentResponse(
             id=str(getattr(experiment, "id", experiment_id)),
             name=str(getattr(experiment, "name", "")),
+            original_message=str(getattr(experiment, "original_message", "")),
             results=responses or [],
             created_at=created_at_ts,
             llm_results=llm_results,
@@ -92,4 +94,21 @@ async def fetch_experiment(experiment_id: str) -> ExperimentResponse:
             error=str(e),
             experiment_id=str(experiment_id),
         )
+        raise
+
+async def get_experiment_status(experiment_id: str) -> dict:
+    """
+    Get experiment status and results from database
+    
+    Args:
+        experiment_id: ID of the experiment
+        
+    Returns:
+        Experiment status and results
+    """
+    try:
+        async with AsyncSessionLocal() as session:
+            return await get_experiment_with_responses(session, experiment_id)
+    except Exception as e:
+        logger.error(f"Error getting experiment status {experiment_id}: {e}")
         raise

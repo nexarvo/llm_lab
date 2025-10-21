@@ -83,7 +83,7 @@ export function SideNavigation({
         {/* Nav body */}
         <div className="flex-1 mt-2 flex flex-col space-y-1 px-1">
           {/* Home (experiments root) */}
-          <Button
+          {/* <Button
             variant="ghost"
             size="icon"
             className={cn(
@@ -101,7 +101,7 @@ export function SideNavigation({
             {!isNavCollapsed && (
               <span className="ml-2 text-secondary">New Chat</span>
             )}
-          </Button>
+          </Button> */}
 
           {/* API Keys Section */}
           <Button

@@ -1,9 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { generateLLMResponse, getSupportedProviders } from "@/lib/llm";
+import {
+  generateLLMResponse,
+  getSupportedProviders,
+  ExperimentStartResponse,
+} from "@/lib/llm";
 import { LLMRequest, LLMResponse, ProvidersResponse } from "@/types/llm";
 
 export function useLLMGeneration() {
-  return useMutation<LLMResponse, Error, LLMRequest>({
+  return useMutation<ExperimentStartResponse, Error, LLMRequest>({
     mutationFn: generateLLMResponse,
   });
 }

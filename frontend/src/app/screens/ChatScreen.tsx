@@ -28,8 +28,7 @@ export default function ChatScreen() {
   >(null);
   const [showKeysPage, setShowKeysPage] = useState(false);
 
-  // Fetch metrics for the current experiment AFTER experiment data is available
-  const enableMetrics = !!currentExperimentId && llmResults;
+  const enableMetrics = llmResults && llmResults.length > 0;
   const {
     data: metrics,
     isLoading: metricsLoading,
@@ -144,7 +143,7 @@ export default function ChatScreen() {
 
             <div className="max-w-7xl w-full flex-1 flex flex-col items-center justify-center mb-8 space-y-8">
               <ResponseBars data={llmResults} />
-              {currentExperimentId && (
+              {currentExperimentId && !isLoading && (
                 <div className="w-full">
                   {metricsLoading && (
                     <div className="w-full p-8 text-center text-muted-foreground">

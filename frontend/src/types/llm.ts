@@ -5,6 +5,7 @@ export interface LLMRequest {
   single_llm: boolean;
   models: string[];
   mock_mode?: boolean;
+  api_keys?: Record<string, string>;
 }
 
 export interface LLMResult {

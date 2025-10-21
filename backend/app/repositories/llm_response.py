@@ -33,11 +33,17 @@ async def save_responses_transaction(
     try:
         logger.info(f"Saving LLM responses for experiment id: {experiment_id}")
         created: List[LLMResponse] = []
+        
+        # Convert string to UUID if needed
+        if isinstance(experiment_id, str):
+            experiment_uuid = uuid.UUID(experiment_id)
+        else:
+            experiment_uuid = experiment_id
 
         for r in responses:
             resp = LLMResponse(
                 id=uuid.uuid4(),
-                experiment_id=experiment_id,
+                experiment_id=experiment_uuid,
                 provider=r.get("provider", ""),
                 model=r.get("model", ""),
                 temperature=float(r.get("temperature", 0.0)),

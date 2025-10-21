@@ -39,6 +39,8 @@ import { useChatStore } from "../store/chatStore";
 import { useAPIKeysStore } from "../store/apiKeysStore";
 import { LLMRequest, LLMResult } from "@/types/llm";
 import { APIKeysModal } from "./APIKeysModal";
+import { ExperimentStatus } from "./ExperimentStatus";
+import { ExperimentStatus as ExperimentStatusType } from "@/lib/llm";
 
 interface UseAutoResizeTextareaProps {
   minHeight: number;
@@ -107,25 +109,32 @@ export function ChatBox({
   const { data: providersData, error: providersError } =
     useSupportedProviders();
 
-  const setIsLoading = useChatStore((s) => s.setIsLoading);
-  const setIsTransitioning = useChatStore((s) => s.setIsTransitioning);
-  const setCurrentExperimentId = useChatStore((s) => s.setCurrentExperimentId);
-  const setResults = useChatStore((s) => s.setResults);
+  // Chat store state
+  const {
+    setIsLoading,
+    setIsTransitioning,
+    setCurrentExperimentId,
+    currentExperimentId,
+    setResults,
+  } = useChatStore();
 
   const firstTimeSend = useChatStore((s) => s.firstTimeSend);
 
   const handleSend = async () => {
-    console.log("selectedModels.length: ", selectedModels.length);
+    console.log("selectedModels 1 ");
     if (selectedModels.length === 0) return;
+    console.log("selectedModels 2 ");
 
     // Check if we need API keys for the selected models
     const requiredProviders = getRequiredProviders(selectedModels);
     const missingProviders = getMissingProviders(requiredProviders);
+    console.log("selectedModels 3 ");
 
     if (missingProviders.length > 0) {
       setShowAPIKeysModal(true);
       return;
     }
+    console.log("selectedModels 4 ");
 
     // Get API keys for the required providers
     const apiKeys: Record<string, string> = {};
@@ -135,6 +144,7 @@ export function ChatBox({
         apiKeys[provider] = apiKey.key;
       }
     });
+    console.log("selectedModels 5 ");
 
     // Prepare the LLM request
     const request: LLMRequest = {
@@ -149,22 +159,20 @@ export function ChatBox({
 
     if (firstTimeSend) setIsTransitioning(true);
 
-    setIsLoading(true);
-
     try {
+      console.log("selectedModels 6 ");
       const response = await generateLLM(request);
 
-      console.log("LLM Response (await):", response);
-
       if (response) {
-        setResults(response.results);
-        setCurrentExperimentId(
-          response.experiment_id ? String(response.experiment_id) : ""
-        );
+        setCurrentExperimentId(response.experiment_id);
+        setIsLoading(true);
+
+        // Clear previous results
+        setResults([]);
       }
 
-      // clear loading & inputs
-      setIsLoading(false);
+      // clear inputs
+      setSelectedModels([]);
       setInput("");
       setValue("");
       adjustHeight(true);
@@ -192,7 +200,7 @@ export function ChatBox({
   const [selectedModels, setSelectedModels] = useState<string[]>([]);
   const [showAPIKeysModal, setShowAPIKeysModal] = useState(false);
 
-  const { getMissingProviders, hasApiKey, getApiKey } = useAPIKeysStore();
+  const { getMissingProviders, getApiKey } = useAPIKeysStore();
 
   // Helper function to get required providers for selected models
   const getRequiredProviders = (models: string[]): string[] => {
@@ -495,7 +503,7 @@ export function ChatBox({
             </div>
           </div>
 
-          {selectedModels ? (
+          {selectedModels.length > 0 ? (
             <div>
               <Separator className="my-2 mx-3" />
               <div className="flex flex-wrap items-start gap-2 w-full min-h-[32px] px-3 py-2">
