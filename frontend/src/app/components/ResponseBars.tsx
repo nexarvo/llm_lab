@@ -120,7 +120,15 @@ export default function ResponseBars({
       )}
 
       <div className="max-w-7xl mx-auto px-8 w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-start justify-between w-full">
+        <div
+          className={`${
+            items.length === 1
+              ? "grid grid-cols-1 gap-6 items-start w-full"
+              : items.length === 2
+              ? "flex flex-col sm:flex-row gap-6 items-start w-full justify-center"
+              : "grid grid-cols-1 sm:grid-cols-3 gap-6 items-start w-full"
+          }`}
+        >
           {slots.map((slotIndex) => {
             const available = optionsForSlot(slotIndex);
             const selectedId = selectedIds[slotIndex] ?? "";
@@ -130,7 +138,13 @@ export default function ResponseBars({
             return (
               <div
                 key={slotIndex}
-                className="w-full min-h-[160px] p-4 bg-[#faf8f1] dark:bg-slate-800 border-r border-dashed border-[#b77466] last:border-r-0"
+                className={`min-h-[160px] p-4 bg-[#faf8f1] dark:bg-slate-800 ${
+                  items.length === 2
+                    ? "w-full sm:w-1/2 border-r border-dashed border-[#b77466] last:border-r-0"
+                    : items.length > 2
+                    ? "w-full border-r border-dashed border-[#b77466] last:border-r-0"
+                    : "w-full"
+                }`}
               >
                 {/* Select */}
                 <div className="mb-3">
