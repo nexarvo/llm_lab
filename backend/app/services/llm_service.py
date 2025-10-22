@@ -136,12 +136,27 @@ class LLMService:
                 request.top_ps
             )
             
-            # Get API key from request or config
+            # Get API key from request
             api_key = None
-            if request.api_keys and provider_type in request.api_keys:
-                api_key = request.api_keys[provider_type]
-            else:
-                api_key = Config.get_api_key(provider_type)
+            # Only require API key if not mock or ollama provider
+            if provider_type not in ['mock', 'ollama']:
+                if request.api_keys and provider_type in request.api_keys:
+                    api_key = request.api_keys[provider_type]
+                else:
+                    error_msg = f"Missing required API key for provider: {provider_type}"
+                    logger.error(error_msg)
+                    # Return a single result list with error and success=False
+                    return [{
+                        'provider': provider_type,
+                        'model': model_id,
+                        'temperature': None,
+                        'top_p': None,
+                        'response': '',
+                        'tokens_used': 0,
+                        'execution_time': 0,
+                        'success': False,
+                        'error': error_msg,
+                    }]
             
             # Create provider
             provider = self.provider_factory.create_provider(
@@ -243,6 +258,28 @@ class LLMService:
             # Worker: given model_id, resolve provider and execute the request
             async def _single_call_factory(model_id: str):
                 provider_type = Config.get_provider_for_model(model_id)
+                
+                # Get API key from request
+                api_key = None
+                if provider_type not in ['mock', 'ollama']:
+                    if request.api_keys and provider_type in request.api_keys:
+                        api_key = request.api_keys[provider_type]
+                    else:
+                        error_msg = f"Missing required API key for provider: {provider_type}"
+                        logger.error(error_msg)
+                        # Return a single result list with error and success=False
+                        return [{
+                            'provider': provider_type,
+                            'model': model_id,
+                            'temperature': None,
+                            'top_p': None,
+                            'response': '',
+                            'tokens_used': 0,
+                            'execution_time': 0,
+                            'success': False,
+                            'error': error_msg,
+                        }]
+                
                 provider = self.provider_factory.create_provider(
                     provider_type=provider_type,
                     api_key=Config.get_api_key(provider_type),

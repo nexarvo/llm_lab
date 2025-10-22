@@ -46,7 +46,6 @@ export default function APIKeysManagementScreen({
       anthropic: "Anthropic",
       google: "Google",
       openrouter: "OpenRouter",
-      mock: "Mock",
     };
     return names[provider] || provider;
   };
@@ -55,13 +54,13 @@ export default function APIKeysManagementScreen({
     return (
       providersData?.models
         ?.map((m) => {
+          if (m.name.includes("OpenRouter") || m.name.includes("openrouter"))
+            return "openrouter";
           if (m.name.includes("GPT") || m.name.includes("gpt")) return "openai";
           if (m.name.includes("Claude") || m.name.includes("claude"))
             return "anthropic";
           if (m.name.includes("Gemini") || m.name.includes("gemini"))
             return "google";
-          if (m.name.includes("OpenRouter") || m.name.includes("openrouter"))
-            return "openrouter";
           return null;
         })
         .filter(Boolean)
@@ -123,7 +122,7 @@ export default function APIKeysManagementScreen({
             ← Back
           </Button>
           <div>
-            <h1 className="text-lg font-bold flex items-center gap-2">
+            <h1 className="text-sm font-bold flex items-center gap-2">
               API Keys
             </h1>
             <p className="text-muted-foreground text-xs">
@@ -205,7 +204,7 @@ export default function APIKeysManagementScreen({
           {/* Add New API Key */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Add New API Key</h2>
+              <h2 className="text-lg font-semibold"></h2>
               <Button onClick={() => setIsAdding(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Key

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
@@ -30,15 +30,23 @@ export function SideNavigation({
   onKeysPage,
 }: SideNavigationProps) {
   const [experimentsOpen, setExperimentsOpen] = useState(true);
-  const { data: experimentsData } = useExperiments();
+  const { data: experimentsData, refetch } = useExperiments();
   const currentExperimentId = useChatStore((s) => s.currentExperimentId);
+  const isLoading = useChatStore((s) => s.isLoading);
   const isNavCollapsed = useChatStore((s) => s.isNavCollapsed ?? true);
   const setIsNavCollapsed = useChatStore((s) => s.setIsNavCollapsed);
 
-  const experiments = (experimentsData?.experiments || []).sort(
-    (a, b) =>
-      Number(b.created_at ?? 0) * 1000 - Number(a.created_at ?? 0) * 1000
-  );
+  const experiments = (experimentsData?.experiments || []).sort((a, b) => {
+    const timeA = new Date(a.created_at).getTime();
+    const timeB = new Date(b.created_at).getTime();
+    return timeB - timeA;
+  });
+
+  useEffect(() => {
+    if (currentExperimentId) {
+      refetch();
+    }
+  }, [currentExperimentId, refetch, isLoading]);
 
   return (
     <nav

@@ -2,6 +2,7 @@ from typing import Dict, Any, Optional
 from .base import BaseLLMProvider
 from .openai_provider import OpenAIProvider
 from .anthropic_provider import AnthropicProvider
+from .google_provider import GoogleProvider
 from .ollama_provider import OllamaProvider
 from .llama_cpp_provider import LlamaCppProvider
 from .openrouter_provider import OpenRouterProvider
@@ -14,6 +15,7 @@ class LLMProviderFactory:
     _providers = {
         "openai": OpenAIProvider,
         "anthropic": AnthropicProvider,
+        "google": GoogleProvider,
         "ollama": OllamaProvider,
         "llama_cpp": LlamaCppProvider,
         "openrouter": OpenRouterProvider,
