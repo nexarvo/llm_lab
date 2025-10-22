@@ -133,7 +133,7 @@ export default function ResponseBars({
             return (
               <div
                 key={slotIndex}
-                className="w-full min-h-[160px] p-4 bg-background dark:bg-slate-800 border-r border-dashed border-secondary last:border-r-0"
+                className="w-full min-h-[160px] p-4 bg-[#faf8f1] dark:bg-slate-800 border-r border-dashed border-[#b77466] last:border-r-0"
               >
                 {/* Select */}
                 <div className="mb-3">

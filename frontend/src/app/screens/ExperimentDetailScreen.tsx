@@ -60,7 +60,7 @@ export default function ExperimentDetailScreen({
 
   if (experimentLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-[#faf8f1]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Loading experiment...</p>
@@ -71,7 +71,7 @@ export default function ExperimentDetailScreen({
 
   if (experimentError || !experiment) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-[#faf8f1]">
         <div className="text-center">
           <p className="text-destructive mb-4">Error loading experiment</p>
           <Button onClick={onBack} variant="outline">
@@ -84,9 +84,9 @@ export default function ExperimentDetailScreen({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#faf8f1]">
       {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="border-b bg-[#faf8f1]/95 backdrop-blur supports-[backdrop-filter]:bg-[#faf8f1]/60">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">

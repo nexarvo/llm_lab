@@ -43,7 +43,7 @@ export function SideNavigation({
   return (
     <nav
       className={cn(
-        "fixed z-50 top-0 left-0 h-full bg-background border-r transition-all duration-200",
+        "fixed z-50 top-0 left-0 h-full bg-[#faf8f1] border-r transition-all duration-200",
         isNavCollapsed ? "w-12" : "w-70 bg-[#F5F4ED]"
       )}
     >
@@ -127,7 +127,7 @@ export function SideNavigation({
                       {experiments.length > 0 && (
                         <Badge
                           variant="outline"
-                          className="ml-2 border-secondary text-secondary"
+                          className="ml-2 border-[#b77466] text-[#b77466]"
                         >
                           {experiments.length}
                         </Badge>
@@ -163,7 +163,7 @@ export function SideNavigation({
                             {currentExperimentId === experiment.id && (
                               <Badge
                                 variant="outline"
-                                className="text-xs text-secondary border rounded-md border-secondary"
+                                className="text-xs text-[#b77466] border rounded-md border-[#b77466]"
                               >
                                 Current
                               </Badge>

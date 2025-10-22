@@ -85,7 +85,7 @@ export default function ChatScreen() {
   }
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-[#faf8f1] overflow-hidden">
       {/* Expanding Circle */}
       <AnimatePresence>
         {isTransitioning && (
@@ -99,7 +99,7 @@ export default function ChatScreen() {
               setIsTransitioning(false);
               setFirstTimeSend(false);
             }}
-            className="absolute top-1/2 left-1/2 w-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary z-50"
+            className="absolute top-1/2 left-1/2 w-10 h-10 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#b77466] z-50"
           />
         )}
       </AnimatePresence>

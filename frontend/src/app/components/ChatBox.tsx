@@ -483,8 +483,8 @@ export function ChatBox({
                 className={cn(
                   "px-1.5 py-1.5 rounded-lg text-sm transition-colors flex items-center justify-between gap-1",
                   value.trim() && selectedModels.length > 0 && !isPending
-                    ? "bg-secondary text-white hover:bg-secondary/80"
-                    : "bg-secondary/50 text-white/50 cursor-not-allowed"
+                    ? "bg-[#b77466] text-white hover:bg-[#b77466]/80"
+                    : "bg-[#b77466]/50 text-white/50 cursor-not-allowed"
                 )}
               >
                 {isPending ? (

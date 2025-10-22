@@ -83,7 +83,7 @@ function Slider({
         <SliderPrimitive.Range
           data-slot="slider-range"
           className={cn(
-            "bg-secondary opacity-70 absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
+            "bg-[#b77466] opacity-70 absolute data-[orientation=horizontal]:h-full data-[orientation=vertical]:w-full"
           )}
         />
       </SliderPrimitive.Track>
