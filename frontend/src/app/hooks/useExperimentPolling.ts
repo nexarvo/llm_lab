@@ -97,6 +97,11 @@ export const useExperimentPolling = ({
         if (onComplete) {
           onComplete(statusData);
         }
+
+        if (onError) {
+          setIsLoading(false);
+          onError(statusData?.error_message ?? "");
+        }
       }
     } catch (err) {
       if (!isMountedRef.current) return;
@@ -108,10 +113,6 @@ export const useExperimentPolling = ({
       setError(errorMessage);
       setIsLoading(false);
       console.log("fetchStatus: error", { experimentId, errorMessage });
-
-      if (onError) {
-        onError(errorMessage);
-      }
     }
   }, [
     experimentId,

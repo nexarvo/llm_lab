@@ -87,7 +87,7 @@ export default function ExperimentDetailScreen({
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button onClick={onBack} variant="ghost" size="sm">
@@ -95,16 +95,16 @@ export default function ExperimentDetailScreen({
                 Back
               </Button>
               <div>
-                <h1 className="text-2xl font-bold">{experiment.name}</h1>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                <h1 className="text-sm font-bold">{experiment.name}</h1>
+                <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
                   <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
+                    <Calendar className="h-3 w-3" />
                     {new Date(
-                      experiment.created_at || Date.now()
+                      experiment.created_at * 1000 || Date.now()
                     ).toLocaleDateString()}
                   </div>
                   <div className="flex items-center gap-1">
-                    <FileText className="h-4 w-4" />
+                    <FileText className="h-3 w-3" />
                     {experiment.llm_results?.length || 0} responses
                   </div>
                 </div>
@@ -120,7 +120,7 @@ export default function ExperimentDetailScreen({
               }
               variant="outline"
               size="sm"
-              className="flex items-center gap-2 bg-emerald-200/50 text-emerald-800/70 hover:bg-emerald-300/50 hover:text-emerald-900/70"
+              className="flex items-center gap-1 bg-emerald-200/50 text-emerald-800/70 hover:bg-emerald-300/50 hover:text-emerald-900/70"
             >
               <Download className="h-4 w-4 mr-2" />
               {isExporting ? "Exporting..." : "Export PDF"}
@@ -141,7 +141,7 @@ export default function ExperimentDetailScreen({
           {experiment.llm_results && experiment.llm_results.length > 0 ? (
             <ResponseBars
               data={experiment.llm_results}
-              originalPrompt={experiment.orginal_message}
+              prompt={experiment.orginal_message}
               isExperimentDetailScreen={true}
             />
           ) : (

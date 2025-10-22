@@ -40,22 +40,15 @@ export function SideNavigation({
   const isNavCollapsed = useChatStore((s) => s.isNavCollapsed ?? true);
   const setIsNavCollapsed = useChatStore((s) => s.setIsNavCollapsed);
 
-  const experiments = experimentsData?.experiments || [];
-
-  // You might want to define a "home" action or page if needed.
-  // Here, assuming that experiment list (first/topmost experiment) is 'home'
-  const handleHomeClick = () => {
-    // Optionally you may want to pass special id or logic to go home/root
-    if (experiments.length > 0) {
-      onExperimentSelect(experiments[0].id);
-    }
-  };
+  const experiments = (experimentsData?.experiments || []).sort(
+    (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+  );
 
   return (
     <nav
       className={cn(
         "fixed z-50 top-0 left-0 h-full bg-background border-r transition-all duration-200",
-        isNavCollapsed ? "w-12" : "w-70 bg-stone-100"
+        isNavCollapsed ? "w-12" : "w-70 bg-[#F5F4ED]"
       )}
     >
       <div className="flex flex-col h-full">
@@ -65,7 +58,7 @@ export function SideNavigation({
             <Button
               size="icon"
               variant="ghost"
-              className="p-2"
+              className="p-2 hover:bg-[#E8E6DC]"
               aria-label={
                 isNavCollapsed ? "Expand navigation" : "Collapse navigation"
               }
@@ -107,14 +100,14 @@ export function SideNavigation({
           <Button
             variant="ghost"
             className={cn(
-              "w-full flex items-center justify-center",
-              !isNavCollapsed && "justify-start px-3 space-x-3"
+              "w-full flex items-center justify-center hover:bg-[#E8E6DC]",
+              !isNavCollapsed && "justify-start"
             )}
             aria-label="API Keys"
             onClick={onKeysPage}
           >
             <Key className="h-5 w-5" />
-            {!isNavCollapsed && <span className="ml-2">API Keys</span>}
+            {!isNavCollapsed && <span className="text-sm">API Keys</span>}
           </Button>
 
           <Separator className={cn("my-2", isNavCollapsed && "mx-auto w-8")} />
@@ -130,13 +123,16 @@ export function SideNavigation({
                 <CollapsibleTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="w-full justify-between px-3"
+                    className="w-full justify-between hover:bg-[#E8E6DC]"
                   >
                     <div className="flex items-center">
-                      <FileText className="h-4 w-4 mr-2" />
+                      <FileText className="h-3 w-3 mr-2" />
                       Experiments
                       {experiments.length > 0 && (
-                        <Badge variant="secondary" className="ml-2">
+                        <Badge
+                          variant="outline"
+                          className="ml-2 border-secondary text-secondary"
+                        >
                           {experiments.length}
                         </Badge>
                       )}
@@ -153,15 +149,11 @@ export function SideNavigation({
                     {experiments.map((experiment) => (
                       <Button
                         key={experiment.id}
-                        variant={
-                          currentExperimentId === experiment.id
-                            ? "secondary"
-                            : "ghost"
-                        }
+                        variant="ghost"
                         className={cn(
-                          "w-full justify-start text-left h-auto p-3",
+                          "w-full justify-start text-left h-auto px-3 hover:bg-[#E8E6DC]",
                           currentExperimentId === experiment.id &&
-                            "bg-secondary"
+                            "bg-[#E8E6DC]"
                         )}
                         onClick={() => {
                           onExperimentSelect(experiment.id);
@@ -169,20 +161,17 @@ export function SideNavigation({
                       >
                         <div className="flex flex-col items-start w-full">
                           <div className="flex items-center justify-between w-full">
-                            <span className="font-medium text-sm truncate">
+                            <span className="font-medium text-xs truncate">
                               {experiment.name}
                             </span>
                             {currentExperimentId === experiment.id && (
-                              <Badge variant="outline" className="text-xs">
+                              <Badge
+                                variant="outline"
+                                className="text-xs text-secondary border rounded-md border-secondary"
+                              >
                                 Current
                               </Badge>
                             )}
-                          </div>
-                          <div className="flex items-center text-xs text-muted-foreground mt-1">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {new Date(
-                              experiment.created_at
-                            ).toLocaleDateString()}
                           </div>
                         </div>
                       </Button>

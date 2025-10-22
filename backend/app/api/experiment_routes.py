@@ -10,7 +10,8 @@ async def get_all_experiments_list():
     try:
         async with AsyncSessionLocal() as session:
             result = await get_all_experiments(session)
-            return {"experiments": result}
+            filtered = [exp for exp in result if getattr(exp, "status", None) == "completed"]
+            return {"experiments": filtered}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
