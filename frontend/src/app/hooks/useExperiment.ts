@@ -6,7 +6,8 @@ export function useExperiment(experimentId: string | null) {
     queryKey: ["experiment", experimentId],
     queryFn: () => getExperimentById(experimentId!),
     enabled: !!experimentId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0, // Always consider data stale, forcing a refetch
+    refetchOnMount: true, // Always refetch when component mounts
     retry: 2,
   });
 }

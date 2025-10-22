@@ -96,19 +96,7 @@ export default function ResponseBars({
     );
   }
 
-  if (!items || items.length === 0) {
-    return (
-      <div className="w-full">
-        <div className="max-w-7xl mx-auto px-8 w-full">
-          <div className="flex items-center justify-center h-32 text-muted-foreground">
-            <p>No responses yet. Generate some responses to see them here.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (pollingError) {
+  if (pollingError && (!items || items.length === 0)) {
     return (
       <div className="w-full mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
         <p className="text-sm text-destructive">
