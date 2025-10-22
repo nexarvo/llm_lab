@@ -45,7 +45,7 @@ export function APIKeysModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { addApiKey, hasApiKey } = useAPIKeysStore();
+  const { addApiKey } = useAPIKeysStore();
 
   const { data: providersData, error: providersError } =
     useSupportedProviders();
@@ -118,7 +118,7 @@ export function APIKeysModal({
         setCurrentProviderIndex(currentProviderIndex + 1);
         setApiKey("");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to save API key. Please try again.");
     } finally {
       setIsLoading(false);
