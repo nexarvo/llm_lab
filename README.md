@@ -77,6 +77,14 @@ I could have added supabase for database but as we are not having Auth and not s
 1. I have taken a decision that the response generation API will be atomic which means that whether every response will succeed or it will fail early. In simple words it is all or none. Our current system is capable of handling retry(from frontend) for single failed response with currently I have chosen atomic behavior.
 2. User will provide the API key. In production environments adding API keys to secrets is not feasible so I have provided user interface to add API keys. They are not logged/stored anywhere in the backend and also they are maintained in zustand keystore and they are cleaned after website is closed or refreshed.
 
+### Frontend Deployment Decision
+
+I have deployed frontend to Vercel because it's simple and vercel has a lot of support for Next.js so that we don't get into build/configuration issues.
+
+### Backend Deployment Decision
+
+I have deployed backend to Render. It was offering a free tier and it is good. One thing to note here is that for free tier the instance shuts downs automatically after some minutes so when you are testing the app, please wait for a minute because for the first call it will delay because will be restarting.
+
 ## Tech Stack
 
 ### Backend
