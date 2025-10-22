@@ -117,20 +117,16 @@ export function ChatBox({
   const firstTimeSend = useChatStore((s) => s.firstTimeSend);
 
   const handleSend = async () => {
-    console.log("selectedModels 1 ");
     if (selectedModels.length === 0) return;
-    console.log("selectedModels 2 ");
 
     // Check if we need API keys for the selected models
     const requiredProviders = getRequiredProviders(selectedModels);
     const missingProviders = getMissingProviders(requiredProviders);
-    console.log("selectedModels 3 ");
 
     if (missingProviders.length > 0) {
       setShowAPIKeysModal(true);
       return;
     }
-    console.log("selectedModels 4 ");
 
     // Get API keys for the required providers
     const apiKeys: Record<string, string> = {};
@@ -140,7 +136,6 @@ export function ChatBox({
         apiKeys[provider] = apiKey.key;
       }
     });
-    console.log("selectedModels 5 ");
 
     // Prepare the LLM request
     const request: LLMRequest = {
@@ -156,7 +151,6 @@ export function ChatBox({
     if (firstTimeSend) setIsTransitioning(true);
 
     try {
-      console.log("selectedModels 6 ");
       const response = await generateLLM(request);
 
       if (response) {

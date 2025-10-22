@@ -27,6 +27,7 @@ export default function ResponseBars({
   const isLoading = useChatStore((s) => s.isLoading);
   const currentExperimentId = useChatStore((s) => s.currentExperimentId);
   const originalPrompt = useChatStore((s) => s.originalPrompt);
+  const pollingError = useChatStore((s) => s.pollingError);
 
   // Ensure items is always an array, preferring props then store
   const items: any[] = useMemo(
@@ -38,8 +39,6 @@ export default function ResponseBars({
         : [],
     [data, storeResults]
   );
-
-  console.log("items: ", items);
 
   // stable ids (stringified indices)
   const ids = useMemo(() => items.map((_, i) => String(i)), [items]);
@@ -105,6 +104,16 @@ export default function ResponseBars({
             <p>No responses yet. Generate some responses to see them here.</p>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (pollingError) {
+    return (
+      <div className="w-full mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+        <p className="text-sm text-destructive">
+          Error generating response: {pollingError}
+        </p>
       </div>
     );
   }

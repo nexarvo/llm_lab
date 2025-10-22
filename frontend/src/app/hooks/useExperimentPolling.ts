@@ -93,6 +93,12 @@ export const useExperimentPolling = ({
           setResults(results);
           setOriginalPrompt(statusData.original_message);
           setIsLoading(false);
+        } else if (statusData.error_message) {
+          setError(statusData.error_message);
+          setIsLoading(false);
+          if (onError) {
+            onError(statusData?.error_message ?? "");
+          }
         }
 
         if (onComplete) {
