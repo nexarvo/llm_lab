@@ -10,3 +10,4 @@ python-dotenv
 textstat
 numpy
 requests
+cryptography>=42.0.0
