@@ -1,5 +1,5 @@
 import api from "./api";
-import { LLMRequest, LLMResponse, ProvidersResponse } from "@/types/llm";
+import { LLMRequest, ProvidersResponse } from "@/types/llm";
 
 export interface ExperimentStatus {
   id: string;

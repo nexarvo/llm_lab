@@ -12,12 +12,7 @@ type SelectProps = React.ComponentProps<typeof SelectPrimitive.Root> & {
   onValueChange?: (value: string | string[]) => void;
 };
 
-function Select({
-  multiple = false,
-  value,
-  onValueChange,
-  ...props
-}: SelectProps) {
+function Select({ value, onValueChange, ...props }: SelectProps) {
   return (
     <SelectPrimitive.Root
       data-slot="select"

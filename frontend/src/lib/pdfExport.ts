@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { pdf } from "@react-pdf/renderer";
 import React from "react";
 import { LLMResult } from "@/types/llm";
@@ -30,6 +31,7 @@ export const exportToPDF = async (
 
     // Create PDF using react-pdf/renderer
     const pdfDoc = pdf(
+      // @ts-expect-error react-pdf expects DocumentProps root, but our component renders one internally
       React.createElement(InteractivePDFDocument, {
         llmResults,
         metrics,
@@ -52,7 +54,7 @@ export const exportToPDF = async (
     URL.revokeObjectURL(url);
 
     console.log("PDF download initiated successfully");
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating PDF:", error);
     console.error("Error details:", {
       name: error.name,

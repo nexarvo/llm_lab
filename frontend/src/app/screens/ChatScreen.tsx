@@ -8,7 +8,7 @@ import { useMetrics } from "../hooks/useMetrics";
 import { useChatStore } from "../store/chatStore";
 import { exportChatScreenToPDF } from "@/lib/pdfExport";
 import { Button } from "../components/ui/button";
-import { Download, ArrowLeft } from "lucide-react";
+import { Download } from "lucide-react";
 import { useState } from "react";
 import ExperimentDetailScreen from "./ExperimentDetailScreen";
 import APIKeysManagementScreen from "./APIKeysManagementScreen";
@@ -142,7 +142,10 @@ export default function ChatScreen() {
             </div>
 
             <div className="max-w-7xl w-full flex-1 flex flex-col items-center justify-center mb-8 space-y-8">
-              <ResponseBars data={llmResults} />
+              <ResponseBars
+                data={llmResults}
+                isExperimentDetailScreen={false}
+              />
               {currentExperimentId && !isLoading && (
                 <div className="w-full">
                   {metricsLoading && (

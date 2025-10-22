@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
@@ -28,7 +29,7 @@ export default function ResponseBars({
   const originalPrompt = useChatStore((s) => s.originalPrompt);
 
   // Ensure items is always an array, preferring props then store
-  const items: LLMResult[] = useMemo(
+  const items: any[] = useMemo(
     () =>
       Array.isArray(data)
         ? data
@@ -138,8 +139,11 @@ export default function ResponseBars({
                 <div className="mb-3">
                   <Select
                     value={selectedId}
-                    onValueChange={(val: string) =>
-                      handleSelectChange(slotIndex, val)
+                    onValueChange={(val: string | string[]) =>
+                      handleSelectChange(
+                        slotIndex,
+                        Array.isArray(val) ? String(val[0]) : String(val)
+                      )
                     }
                   >
                     <SelectTrigger className="w-full">

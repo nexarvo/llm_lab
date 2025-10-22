@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface LLMRequest {
   prompt: string;
   temperatures: number[];
@@ -40,4 +41,5 @@ export interface Model {
 
 export interface ProvidersResponse {
   models: Model[];
+  providers: any[];
 }

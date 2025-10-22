@@ -99,9 +99,11 @@ export default function ExperimentDetailScreen({
                 <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {new Date(
-                      experiment.created_at * 1000 || Date.now()
-                    ).toLocaleDateString()}
+                    {experiment.created_at !== undefined
+                      ? new Date(
+                          experiment.created_at * 1000
+                        ).toLocaleDateString()
+                      : new Date().toLocaleDateString()}
                   </div>
                   <div className="flex items-center gap-1">
                     <FileText className="h-3 w-3" />

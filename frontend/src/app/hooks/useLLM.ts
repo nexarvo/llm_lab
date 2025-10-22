@@ -4,7 +4,7 @@ import {
   getSupportedProviders,
   ExperimentStartResponse,
 } from "@/lib/llm";
-import { LLMRequest, LLMResponse, ProvidersResponse } from "@/types/llm";
+import { LLMRequest, ProvidersResponse } from "@/types/llm";
 
 export function useLLMGeneration() {
   return useMutation<ExperimentStartResponse, Error, LLMRequest>({

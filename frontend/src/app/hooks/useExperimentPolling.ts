@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useCallback, useRef } from "react";
 import { getExperimentStatus, ExperimentStatus } from "@/lib/llm";
 import { useChatStore } from "@/app/store/chatStore";

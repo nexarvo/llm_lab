@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React from "react";
@@ -11,7 +12,6 @@ import {
   Rect,
   Line,
 } from "@react-pdf/renderer";
-import { LLMResult } from "@/types/llm";
 import { QualityMetric } from "@/types/metrics";
 
 // Use system fonts to avoid font loading issues
@@ -366,8 +366,8 @@ export const InteractivePDFDocument = ({
                         key={globalIndex}
                         style={[
                           styles.responseCard,
-                          isSecond && styles.responseCardSecond,
-                          isLast && styles.responseCardLast,
+                          ...(isSecond ? [styles.responseCardSecond] : []),
+                          ...(isLast ? [styles.responseCardLast] : []),
                         ]}
                       >
                         {/* Model Info Header */}

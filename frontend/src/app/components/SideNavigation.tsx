@@ -10,16 +10,11 @@ import {
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import {
-  History,
   Key,
   ChevronDown,
   ArrowLeftFromLine,
   PanelLeft,
-  ChevronUp,
-  Calendar,
   FileText,
-  Home,
-  Plus,
 } from "lucide-react";
 import { useExperiments } from "../hooks/useExperiments";
 import { useChatStore } from "../store/chatStore";
@@ -35,13 +30,14 @@ export function SideNavigation({
   onKeysPage,
 }: SideNavigationProps) {
   const [experimentsOpen, setExperimentsOpen] = useState(true);
-  const { data: experimentsData, isLoading, error } = useExperiments();
+  const { data: experimentsData } = useExperiments();
   const currentExperimentId = useChatStore((s) => s.currentExperimentId);
   const isNavCollapsed = useChatStore((s) => s.isNavCollapsed ?? true);
   const setIsNavCollapsed = useChatStore((s) => s.setIsNavCollapsed);
 
   const experiments = (experimentsData?.experiments || []).sort(
-    (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+    (a, b) =>
+      Number(b.created_at ?? 0) * 1000 - Number(a.created_at ?? 0) * 1000
   );
 
   return (

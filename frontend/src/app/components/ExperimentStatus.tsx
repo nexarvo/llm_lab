@@ -15,9 +15,8 @@ export function ExperimentStatus({
   experimentId,
   onComplete,
   onError,
-  onClose,
 }: ExperimentStatusProps) {
-  const { status, isLoading, error, isPolling } = useExperimentPolling({
+  const { status, error } = useExperimentPolling({
     experimentId,
     pollInterval: 2000,
     onComplete,

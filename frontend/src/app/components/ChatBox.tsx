@@ -39,8 +39,6 @@ import { useChatStore } from "../store/chatStore";
 import { useAPIKeysStore } from "../store/apiKeysStore";
 import { LLMRequest, LLMResult } from "@/types/llm";
 import { APIKeysModal } from "./APIKeysModal";
-import { ExperimentStatus } from "./ExperimentStatus";
-import { ExperimentStatus as ExperimentStatusType } from "@/lib/llm";
 
 interface UseAutoResizeTextareaProps {
   minHeight: number;
@@ -96,7 +94,6 @@ function useAutoResizeTextarea({
 }
 
 export function ChatBox({
-  onResults,
   className,
 }: {
   onResults?: (results: LLMResult[], experimentId?: string) => void;
@@ -114,7 +111,6 @@ export function ChatBox({
     setIsLoading,
     setIsTransitioning,
     setCurrentExperimentId,
-    currentExperimentId,
     setResults,
   } = useChatStore();
 

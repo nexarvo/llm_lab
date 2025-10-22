@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Badge } from "../components/ui/badge";
 import {
   Card,
   CardContent,
@@ -21,16 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
-import {
-  Key,
-  Plus,
-  Edit,
-  Trash2,
-  Eye,
-  EyeOff,
-  AlertCircle,
-  CheckCircle,
-} from "lucide-react";
+import { Plus, Edit, Trash2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAPIKeysStore } from "../store/apiKeysStore";
 import { useSupportedProviders } from "../hooks/useLLM";
 
@@ -62,7 +52,6 @@ export default function APIKeysManagementScreen({
   };
 
   const getAvailableProviders = () => {
-    const usedProviders = new Set(apiKeys.map((k) => k.provider));
     return (
       providersData?.models
         ?.map((m) => {
@@ -241,8 +230,8 @@ export default function APIKeysManagementScreen({
                     >
                       <option value="">Select a provider</option>
                       {getAvailableProviders().map((provider) => (
-                        <option key={provider} value={provider}>
-                          {getProviderDisplayName(provider)}
+                        <option key={provider} value={provider || ""}>
+                          {getProviderDisplayName(provider || "")}
                         </option>
                       ))}
                     </select>

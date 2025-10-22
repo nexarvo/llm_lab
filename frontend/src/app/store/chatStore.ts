@@ -21,6 +21,7 @@ interface ChatState {
   setFirstTimeSend: (v: boolean) => void;
   setIsTransitioning: (v: boolean) => void;
   setIsLoading: (v: boolean) => void;
+  setIsNavCollapsed: (v: boolean) => void;
   setCurrentExperimentId: (id: string) => void;
   setOriginalPrompt: (id: string) => void;
   setResults: (results: LLMResult[]) => void;
