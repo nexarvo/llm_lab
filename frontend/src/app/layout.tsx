@@ -20,9 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={poppins.variable}>
       <body className="font-sans">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <QueryProvider>{children}</QueryProvider>
-        </ThemeProvider>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
