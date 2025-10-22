@@ -43,6 +43,8 @@ Visit `http://localhost:3000` to access the application.
 
 ### Backend (FastAPI)
 
+I have choose FastAPI because it's simple, easy to setup and has python super power. Although we are not dealing with data currently but working with LLMs is a pre-indicator that data needs might come. Plus it is light weight.
+
 - **API Layer**: RESTful endpoints for LLM experiments, metrics, and management
 - **Service Layer**: Business logic for experiment orchestration and LLM interactions
 - **Provider Layer**: Pluggable LLM providers (OpenAI, Anthropic, Google, Ollama, etc.) using factory design principle.
@@ -50,6 +52,8 @@ Visit `http://localhost:3000` to access the application.
 - **Data Layer**: SQLite database with SQLModel for experiment tracking
 
 ### Frontend (Next.js)
+
+I have chosen Next.js because it has some features like built-in routing, SSR.I works well with typescript and React capabilities. Plus deploying it to Vercel is very straight forward.
 
 - **React Components**: Modern UI with shadcn/ui components
 - **State Management**: Zustand for client state, React Query for server state
