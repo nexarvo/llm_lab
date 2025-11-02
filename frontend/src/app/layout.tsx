@@ -5,6 +5,7 @@ import { ThemeProvider } from "./providers/theme-provider";
 import { Poppins } from "next/font/google";
 import type { Metadata } from "next";
 import StructuredData from "./components/StructuredData";
+import { Analytics } from "@vercel/analytics/next";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -110,6 +111,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={poppins.variable}>
       <body className="font-sans">
+        <Analytics />
         <StructuredData />
         <QueryProvider>{children}</QueryProvider>
       </body>
