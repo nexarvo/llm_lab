@@ -215,8 +215,8 @@ export function ChatBox({
   useEffect(() => {
     if (!multiModel) {
       setSelectedChips([
-        `temp - ${tempRange[0].toFixed(1)}:${tempRange[1].toFixed(1)}`,
-        `top_p - ${topPRange[0].toFixed(1)}:${topPRange[1].toFixed(1)}`,
+        `temperature: [${tempRange[0].toFixed(1)}, ${tempRange[1].toFixed(1)}]`,
+        `top_p: [${topPRange[0].toFixed(1)}, ${topPRange[1].toFixed(1)}]`,
       ]);
     } else {
       setSelectedChips([
@@ -256,19 +256,25 @@ export function ChatBox({
       )}
     >
       {firstTimeSend ? (
-        <h1
-          className="text-center w-full"
-          style={{
-            fontFamily:
-              'anthropicSerif, "anthropicSerif Fallback", Georgia, "Times New Roman", Times, serif',
-            fontSize: "40px",
-            fontWeight: 330,
-            lineHeight: "60px",
-            color: "rgb(61, 61, 58)",
-          }}
-        >
-          What do you want to compare today?
-        </h1>
+        <div className="mb-12">
+          <h1
+            className="text-center w-full"
+            style={{
+              fontFamily:
+                'anthropicSerif, "anthropicSerif Fallback", Georgia, "Times New Roman", Times, serif',
+              fontSize: "40px",
+              fontWeight: 330,
+              lineHeight: "60px",
+              color: "rgb(61, 61, 58)",
+            }}
+          >
+            What do you want to compare today?
+          </h1>
+          <p className="text-center text-gray-400 mt-4 text-sm">
+            Free tool to compare AI models side-by-side — test prompts, tune
+            parameters, and analyze responses instantly.
+          </p>
+        </div>
       ) : null}
 
       {/* Error Messages */}
