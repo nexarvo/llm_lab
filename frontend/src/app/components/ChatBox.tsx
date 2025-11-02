@@ -256,7 +256,17 @@ export function ChatBox({
       )}
     >
       {firstTimeSend ? (
-        <h1 className="text-4xl font-bold text-black dark:text-white font-mono">
+        <h1
+          className="text-center w-full"
+          style={{
+            fontFamily:
+              'anthropicSerif, "anthropicSerif Fallback", Georgia, "Times New Roman", Times, serif',
+            fontSize: "40px",
+            fontWeight: 330,
+            lineHeight: "60px",
+            color: "rgb(61, 61, 58)",
+          }}
+        >
           What do you want to compare today?
         </h1>
       ) : null}
