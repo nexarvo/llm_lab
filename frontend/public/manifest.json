@@ -1,0 +1,25 @@
+{
+  "name": "LLM Lab - Language Model Testing Platform",
+  "short_name": "LLM Lab",
+  "description": "Test and compare multiple language models side-by-side. Run experiments with GPT-4, Claude, Gemini, and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf8f1",
+  "theme_color": "#faf8f1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["productivity", "developer", "utilities"],
+  "screenshots": [],
+  "shortcuts": [],
+  "prefer_related_applications": false
+}
+
+
+
+
