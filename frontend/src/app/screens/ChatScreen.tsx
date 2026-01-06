@@ -1,5 +1,6 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { ChatBox } from "../components/ChatBox";
 import ResponseBars from "../components/ResponseBars";
 import QualityMetricsChart from "../components/QualityMetricsChart";
@@ -8,7 +9,7 @@ import { useMetrics } from "../hooks/useMetrics";
 import { useChatStore } from "../store/chatStore";
 import { exportChatScreenToPDF } from "@/lib/pdfExport";
 import { Button } from "../components/ui/button";
-import { Download } from "lucide-react";
+import { Download, Github } from "lucide-react";
 import { useState } from "react";
 import ExperimentDetailScreen from "./ExperimentDetailScreen";
 import APIKeysManagementScreen from "./APIKeysManagementScreen";
@@ -85,7 +86,7 @@ export default function ChatScreen() {
   }
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-[#faf8f1] overflow-hidden">
+    <div className="relative min-h-screen flex flex-col bg-[#faf8f1] overflow-hidden">
       {/* Expanding Circle */}
       <AnimatePresence>
         {isTransitioning && (
@@ -104,15 +105,63 @@ export default function ChatScreen() {
         )}
       </AnimatePresence>
 
+      {/* Top Navigation Bar - Landing Page Only */}
+      {firstTimeSend && (
+        <nav className="fixed top-4 left-1/2 -translate-x-1/2 z-40 w-full max-w-3xl px-4">
+          <div className="bg-white/80 backdrop-blur-sm rounded-full border border-neutral-200 shadow-sm px-6 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-bold text-[#6B6B68FF]">LLM Lab</h1>
+            </div>
+            <div className="flex items-center">
+              <a
+                href="https://github.com/nexarvo/llm_lab"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neutral-600 hover:text-neutral-900 transition-colors"
+                aria-label="GitHub"
+              >
+                <Github className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+        </nav>
+      )}
+
       {/* Main Content */}
       <div
-        className={`transition-all duration-800 ${
+        className={`flex-1 transition-all duration-800 ${
           !firstTimeSend
             ? "pt-8 pb-48 flex flex-col items-center justify-start"
-            : "flex items-center justify-center h-screen"
+            : "flex flex-col items-center justify-center pt-24 pb-8"
         }`}
       >
-        {firstTimeSend && <ChatBox className="max-w-xl w-full" />}
+        {firstTimeSend && (
+          <>
+            <ChatBox className="max-w-xl w-full" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="mt-16 w-full max-w-5xl px-4 flex flex-col items-center"
+            >
+              {/* Image Container with White Card */}
+              <div className="w-full bg-orange-400/60 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.08)] p-8 md:p-8 hover:shadow-[0_25px_70px_rgba(0,0,0,0.12)] transition-shadow duration-300">
+                <div className="relative rounded-lg overflow-hidden border border-neutral-100">
+                  <Image
+                    src="/product-demo.png"
+                    alt="Product Demo - LLM Lab interface showing side-by-side model comparison"
+                    width={1200}
+                    height={800}
+                    className="w-full h-auto"
+                    priority
+                  />
+                  {/* Subtle accent border using brand color */}
+                  <div className="absolute inset-0 border-2 border-white-600/40 pointer-events-none rounded-lg shadow-lg" />
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
 
         {!firstTimeSend && (
           <>
@@ -173,6 +222,55 @@ export default function ChatScreen() {
           </>
         )}
       </div>
+
+      {/* Footer - Landing Page Only */}
+      {firstTimeSend && (
+        <footer className="w-full bg-white/80 backdrop-blur-sm border-t border-neutral-200 mt-auto">
+          <div className="max-w-6xl mx-auto px-4 py-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div>
+                <h3 className="font-semibold text-[#3d3d3a] mb-4">LLM Lab</h3>
+                <p className="text-sm text-neutral-600">
+                  Made by{" "}
+                  <a
+                    href="https://www.linkedin.com/in/usman-g/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-orange-600 hover:text-neutral-700 transition-colors"
+                  >
+                    Usman Ghani
+                  </a>{" "}
+                  with ☕️
+                </p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-[#3d3d3a] mb-4">Connect</h4>
+                <ul className="space-y-2 text-sm text-neutral-600">
+                  <li>
+                    <a
+                      href="https://github.com/nexarvo/llm_lab"
+                      className="hover:text-neutral-900 transition-colors"
+                    >
+                      GitHub
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="mailto:usmanghani564.ug9@gmail.com"
+                      className="hover:text-neutral-900 transition-colors"
+                    >
+                      Contact
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div className="mt-8 pt-8 border-t border-neutral-200 text-center text-sm text-neutral-500">
+              <p>© {new Date().getFullYear()} LLM Lab. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
+      )}
     </div>
   );
 }
